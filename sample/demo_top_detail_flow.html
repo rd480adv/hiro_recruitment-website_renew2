@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>応募手続き - SaiinWork</title>
+    <style>
+        :root {
+            /* オレンジ基調のカラーパレット */
+            --primary-color: #FF6B35;
+            --primary-light: #FF8A65;
+            --primary-dark: #E64A19;
+            --secondary-color: #FFF3E0;
+            --secondary-light: #FFCCBC;
+            --accent-color: #FF9800;
+            --accent-warm: #FFF8F3;
+            --text-primary: #2C2C2C;
+            --text-secondary: #666666;
+            --background: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --error: #F44336;
+            --success: #4CAF50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--light-gray);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 390px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                padding: 0 24px;
+            }
+        }
+
+        /* ヘッダー */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-gray);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* プログレスバー */
+        .progress-section {
+            background: var(--white);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .progress-step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .progress-step.inactive {
+            background: var(--light-gray);
+            color: var(--text-secondary);
+        }
+
+        .progress-line {
+            width: 40px;
+            height: 2px;
+            background: var(--light-gray);
+            position: relative;
+        }
+
+        .progress-line.completed {
+            background: var(--success);
+        }
+
+        .progress-label {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: 24px 0;
+        }
+
+        /* ステップ1: 確認画面 */
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .job-summary {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .job-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .job-company {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .job-details {
+            display: grid;
+            gap: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ステップ2: プロフィール確認 */
+        .profile-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-input:read-only {
+            background: var(--light-gray);
+            color: var(--text-secondary);
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 14px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ステップ3: 最終確認 */
+        .confirmation-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .confirmation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .confirmation-item:last-child {
+            border-bottom: none;
+        }
+
+        .terms-section {
+            background: var(--accent-warm);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        .link {
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* ステップ4: 完了画面 */
+        .success-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .next-steps {
+            background: var(--accent-warm);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .next-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .next-step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* ボタン */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            padding: 20px 0;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: var(--white);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary {
+            flex: 2;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary:disabled {
+            background: var(--light-gray);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .btn-full {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline {
+            width: 100%;
+            background: var(--white);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 12px;
+        }
+
+        /* 読み込み状態 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* アニメーション */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <button class="back-btn" onclick="handleBack()">←</button>
+                <h1 class="header-title">応募手続き</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- プログレスバー -->
+    <section class="progress-section">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-step active" id="step1">1</div>
+                <div class="progress-line" id="line1"></div>
+                <div class="progress-step inactive" id="step2">2</div>
+                <div class="progress-line" id="line2"></div>
+                <div class="progress-step inactive" id="step3">3</div>
+                <div class="progress-line" id="line3"></div>
+                <div class="progress-step inactive" id="step4">✓</div>
+            </div>
+            <div class="progress-label" id="stepLabel">求人内容の確認</div>
+        </div>
+    </section>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <div class="container">
+            <!-- ステップ1: 求人内容確認 -->
+            <div class="step-content active" id="stepContent1">
+                <section class="job-summary fade-in">
+                    <h2 class="job-title">カフェスタッフ</h2>
+                    <p class="job-company">コメダ珈琲店 西院店</p>
+                    
+                    <div class="job-details">
+                        <div class="detail-row">
+                            <span class="detail-label">勤務日時</span>
+                            <span class="detail-value">2025年8月5日(火) 14:00-18:00</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">時給</span>
+                            <span class="detail-value">1,100円</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">勤務場所</span>
+                            <span class="detail-value">西院駅徒歩2分</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">仕事内容</span>
+                            <span class="detail-value">ホール業務(注文受け、配膳、レジ)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">服装</span>
+                            <span class="detail-value">制服貸与</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="history.back()">戻る</button>
+                    <button class="btn-primary" onclick="nextStep(2)">この内容で応募する</button>
+                </div>
+            </div>
+
+            <!-- ステップ2: プロフィール確認・編集 -->
+            <div class="step-content" id="stepContent2">
+                <section class="profile-section fade-in">
+                    <h3 class="section-title">
+                        <span>👤</span>
+                        プロフィール確認
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">お名前</label>
+                        <input type="text" class="form-input" value="山田 太郎" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">電話番号</label>
+                        <input type="tel" class="form-input" value="090-1234-5678" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス</label>
+                        <input type="email" class="form-input" value="yamada@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">年齢</label>
+                        <input type="number" class="form-input" value="22">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">志望動機・自己PR（任意）</label>
+                        <textarea class="form-textarea" id="motivation" placeholder="カフェで働きたい理由や、あなたの経験・スキルをお書きください。" maxlength="200"></textarea>
+                        <div class="char-count"><span id="charCount">0</span>/200文字</div>
+                    </div>
+                </section>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(1)">戻る</button>
+                    <button class="btn-primary" onclick="nextStep(3)">次へ</button>
+                </div>
+            </div>
+
+            <!-- ステップ3: 最終確認 -->
+            <div class="step-content" id="stepContent3">
+                <section class="confirmation-section fade-in">
+                    <h3 class="section-title">
+                        <span>📋</span>
+                        応募内容の最終確認
+                    </h3>
+                    
+                    <div class="confirmation-item">
+                        <span class="detail-label">求人</span>
+                        <span class="detail-value">カフェスタッフ<br>コメダ珈琲店 西院店</span>
+                    </div>
+                    
+                    <div class="confirmation-item">
+                        <span class="detail-label">勤務日時</span>
+                        <span class="detail-value">2025年8月5日(火)<br>14:00-18:00</span>
+                    </div>
+                    
+                    <div class="confirmation-item">
+                        <span class="detail-label">応募者</span>
+                        <span class="detail-value">山田 太郎<br>yamada@example.com</span>
+                    </div>
+                </section>
+
+                <section class="terms-section">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" class="checkbox" required>
+                        <label for="terms" class="checkbox-label">
+                            <span class="link">利用規約</span>および<span class="link">プライバシーポリシー</span>に同意します
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="contact" class="checkbox" required>
+                        <label for="contact" class="checkbox-label">
+                            企業からの連絡（電話・メール・SMS）を受け取ることに同意します
+                        </label>
+                    </div>
+                </section>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(2)">戻る</button>
+                    <button class="btn-primary" id="submitBtn" onclick="submitApplication()" disabled>応募を確定する</button>
+                </div>
+            </div>
+
+            <!-- ステップ4: 完了画面 -->
+            <div class="step-content" id="stepContent4">
+                <section class="success-section fade-in">
+                    <div class="success-icon">🎉</div>
+                    <h2 class="success-title">応募完了！</h2>
+                    <p class="success-message">
+                        カフェスタッフの求人への応募が完了しました。<br>
+                        企業からの連絡をお待ちください。
+                    </p>
+                    
+                    <div class="next-steps">
+                        <div class="next-step-item">
+                            <div class="step-icon">1</div>
+                            <div class="step-text">
+                                24時間以内に企業から連絡があります
+                            </div>
+                        </div>
+                        <div class="next-step-item">
+                            <div class="step-icon">2</div>
+                            <div class="step-text">
+                                詳細な勤務条件を企業と調整します
+                            </div>
+                        </div>
+                        <div class="next-step-item">
+                            <div class="step-icon">3</div>
+                            <div class="step-text">
+                                仲間とのグループチャットに参加できます
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-full" onclick="goToMyPage()">マイページで応募状況を確認</button>
+                    <button class="btn-outline" onclick="goToChat()">仲間とのチャットに参加</button>
+                </section>
+            </div>
+
+            <!-- 読み込み画面 -->
+            <div class="loading" id="loadingScreen">
+                <div class="spinner"></div>
+                <p>応募処理中...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        const stepLabels = [
+            '',
+            '求人内容の確認',
+            'プロフィール確認',
+            '最終確認',
+            '応募完了'
+        ];
+
+        // ステップ進行
+        function nextStep(step) {
+            if (step > totalSteps) return;
+            
+            // 現在のステップを非表示
+            document.getElementById(`stepContent${currentStep}`).classList.remove('active');
+            
+            // プログレスバー更新
+            updateProgressBar(step);
+            
+            // 新しいステップを表示
+            currentStep = step;
+            setTimeout(() => {
+                document.getElementById(`stepContent${currentStep}`).classList.add('active');
+                document.getElementById(`stepContent${currentStep}`).scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function prevStep(step) {
+            if (step < 1) return;
+            
+            // 現在のステップを非表示
+            document.getElementById(`stepContent${currentStep}`).classList.remove('active');
+            
+            // プログレスバー更新
+            updateProgressBar(step);
+            
+            // 前のステップを表示
+            currentStep = step;
+            setTimeout(() => {
+                document.getElementById(`stepContent${currentStep}`).classList.add('active');
+            }, 100);
+        }
+
+        // プログレスバー更新
+        function updateProgressBar(step) {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                const lineElement = document.getElementById(`line${i}`);
+                
+                if (i < step) {
+                    stepElement.className = 'progress-step completed';
+                    if (lineElement) lineElement.className = 'progress-line completed';
+                } else if (i === step) {
+                    stepElement.className = 'progress-step active';
+                    if (lineElement) lineElement.className = 'progress-line';
+                } else {
+                    stepElement.className = 'progress-step inactive';
+                    if (lineElement) lineElement.className = 'progress-line';
+                }
+            }
+            
+            document.getElementById('stepLabel').textContent = stepLabels[step];
+        }
+
+        // 文字数カウント
+        const motivationTextarea = document.getElementById('motivation');
+        const charCountElement = document.getElementById('charCount');
+
+        motivationTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCountElement.textContent = count;
+            
+            if (count > 200) {
+                charCountElement.style.color = 'var(--error)';
+            } else {
+                charCountElement.style.color = 'var(--text-secondary)';
+            }
+        });
+
+        // チェックボックス管理
+        const termsCheckbox = document.getElementById('terms');
+        const contactCheckbox = document.getElementById('contact');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function updateSubmitButton() {
+            if (termsCheckbox.checked && contactCheckbox.checked) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        termsCheckbox.addEventListener('change', updateSubmitButton);
+        contactCheckbox.addEventListener('change', updateSubmitButton);
+
+        // 応募送信
+        function submitApplication() {
+            // 読み込み画面表示
+            document.getElementById(`stepContent${currentStep}`).style.display = 'none';
+            document.getElementById('loadingScreen').classList.add('active');
+            
+            // 擬似的な送信処理
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.remove('active');
+                nextStep(4);
+            }, 2000);
+        }
+
+        // 戻るボタン処理
+        function handleBack() {
+            if (currentStep > 1) {
+                prevStep(currentStep - 1);
+            } else {
+                if (confirm('応募を中止してもよろしいですか？')) {
+                    history.back();
+                }
+            }
+        }
+
+        // 完了後のアクション
+        function goToMyPage() {
+            showNotification('マイページに移動します');
+            // 実際の実装では適切なページに遷移
+        }
+
+        function goToChat() {
+            showNotification('仲間とのチャットを開始します');
+            // 実際の実装では適切なページに遷移
+        }
+
+        // 通知機能
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--text-primary);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: slideDown 0.3s ease;
+                max-width: 320px;
+                text-align: center;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // リンククリック処理
+        document.querySelectorAll('.link').forEach(link => {
+            link.addEventListener('click', function() {
+                const text = this.textContent;
+                showNotification(`${text}を表示します`);
+            });
+        });
+
+        // 初期化
+        window.addEventListener('load', function() {
+            // 初期フォーカス設定やその他の初期化処理
+            console.log('応募フロー開始');
+        });
+    </script>
+</body>
+</html>

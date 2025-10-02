@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カフェスタッフ - コメダ珈琲店 西院店 | SaiinWork</title>
+    <style>
+        :root {
+            /* オレンジ基調のカラーパレット */
+            --primary-color: #FF6B35;
+            --primary-light: #FF8A65;
+            --primary-dark: #E64A19;
+            --secondary-color: #FFF3E0;
+            --secondary-light: #FFCCBC;
+            --accent-color: #FF9800;
+            --accent-warm: #FFF8F3;
+            --text-primary: #2C2C2C;
+            --text-secondary: #666666;
+            --background: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --error: #F44336;
+            --success: #4CAF50;
+            
+            /* フォントサイズ */
+            --font-size-xs: 12px;
+            --font-size-sm: 14px;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+            --font-size-3xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--light-gray);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 390px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                padding: 0 24px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1200px;
+                padding: 0 32px;
+            }
+        }
+
+        /* ヘッダー */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-gray);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--light-gray);
+            color: var(--primary-color);
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: 24px 0;
+        }
+
+        /* 求人ヘッダー */
+        .job-header {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .job-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .job-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .job-company {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .job-wage-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--accent-warm);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .job-wage {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .wage-note {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .job-quick-info {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--light-gray);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* コミュニティセクション */
+        .community-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--accent-warm);
+            border-radius: 12px;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .member-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .member-message {
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--white);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .message-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .message-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .community-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-community {
+            flex: 1;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-community:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 求人詳細情報 */
+        .job-details-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            text-align: right;
+            flex: 1;
+        }
+
+        /* 職場情報 */
+        .workplace-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .workplace-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-warm) 100%);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--primary-color);
+        }
+
+        .workplace-info {
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .info-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-warm);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* 評価セクション */
+        .rating-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 100px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: var(--accent-warm);
+            border-radius: 12px;
+        }
+
+        .rating-score {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .rating-details {
+            flex: 1;
+        }
+
+        .rating-stars {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .rating-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .review-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .reviewer-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .review-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* 固定ボトムバー */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 16px 20px;
+            border-top: 1px solid var(--light-gray);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+        }
+
+        .bottom-actions {
+            max-width: 390px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-actions {
+                max-width: 800px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .bottom-actions {
+                max-width: 1200px;
+            }
+        }
+
+        .btn-bookmark {
+            background: none;
+            border: 2px solid var(--light-gray);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 56px;
+        }
+
+        .btn-bookmark:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-bookmark.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--secondary-color);
+        }
+
+        .btn-apply {
+            flex: 1;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-apply:hover {
+            background: var(--primary-dark);
+        }
+
+        /* アニメーション */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* レスポンシブ調整 */
+        @media (min-width: 768px) {
+            .job-quick-info {
+                gap: 20px;
+            }
+            
+            .member-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            
+            .detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <button class="back-btn" onclick="history.back()">←</button>
+                <h1 class="header-title">求人詳細</h1>
+                <div class="header-actions">
+                    <button class="icon-btn" title="シェア">📤</button>
+                    <button class="icon-btn" title="その他">⋯</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 求人ヘッダー -->
+            <section class="job-header fade-in">
+                <div class="job-badge">急募</div>
+                <h2 class="job-title">カフェスタッフ</h2>
+                <p class="job-company">コメダ珈琲店 西院店</p>
+                
+                <div class="job-wage-section">
+                    <div>
+                        <div class="job-wage">¥1,100</div>
+                        <div class="wage-note">時給</div>
+                    </div>
+                    <div class="wage-note">交通費別途支給</div>
+                </div>
+
+                <div class="job-quick-info">
+                    <div class="quick-info-item">
+                        <span>📍</span>
+                        <span>徒歩2分</span>
+                    </div>
+                    <div class="quick-info-item">
+                        <span>🕐</span>
+                        <span>14:00-18:00</span>
+                    </div>
+                    <div class="quick-info-item">
+                        <span>👕</span>
+                        <span>制服あり</span>
+                    </div>
+                    <div class="quick-info-item">
+                        <span>🔰</span>
+                        <span>未経験OK</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- コミュニティセクション -->
+            <section class="community-section fade-in">
+                <h3 class="section-title">
+                    <span>👥</span>
+                    一緒に働く仲間
+                </h3>
+                
+                <div class="member-list">
+                    <div class="member-item">
+                        <div class="member-avatar">A</div>
+                        <div class="member-info">
+                            <div class="member-name">Aさん (20代女性)</div>
+                            <div class="member-desc">カフェ経験2年・リーダー</div>
+                            <div class="member-message">"新人さん大歓迎！優しくサポートします ☕"</div>
+                        </div>
+                        <button class="message-btn">メッセージ</button>
+                    </div>
+                    
+                    <div class="member-item">
+                        <div class="member-avatar">B</div>
+                        <div class="member-info">
+                            <div class="member-name">Bさん (30代男性)</div>
+                            <div class="member-desc">接客好き・ベテラン</div>
+                            <div class="member-message">"和気あいあいと働きましょう！"</div>
+                        </div>
+                        <button class="message-btn">メッセージ</button>
+                    </div>
+                    
+                    <div class="member-item">
+                        <div class="member-avatar">C</div>
+                        <div class="member-info">
+                            <div class="member-name">Cさん (20代女性)</div>
+                            <div class="member-desc">学生・週3勤務</div>
+                            <div class="member-message">"同世代の方、一緒に頑張りましょう！"</div>
+                        </div>
+                        <button class="message-btn">メッセージ</button>
+                    </div>
+                </div>
+
+                <div class="community-actions">
+                    <button class="btn-community">💬 グループチャットに参加</button>
+                    <button class="btn-community">🤝 仲間募集を投稿</button>
+                </div>
+            </section>
+
+            <!-- 求人詳細情報 -->
+            <section class="job-details-section fade-in">
+                <h3 class="section-title">
+                    <span>📋</span>
+                    求人詳細
+                </h3>
+                
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">勤務日時</span>
+                        <span class="detail-value">2025年8月5日(火)<br>14:00～18:00 (4時間)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">時給</span>
+                        <span class="detail-value">1,100円<br>(交通費別途支給)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">仕事内容</span>
+                        <span class="detail-value">ホール業務<br>(注文受け、配膳、レジ)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">服装</span>
+                        <span class="detail-value">制服貸与<br>(エプロン・帽子)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">応募条件</span>
+                        <span class="detail-value">未経験歓迎<br>高校生OK</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">休憩</span>
+                        <span class="detail-value">4時間勤務のため<br>休憩なし</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 職場情報 -->
+            <section class="workplace-section fade-in">
+                <h3 class="section-title">
+                    <span>🏪</span>
+                    職場情報
+                </h3>
+                
+                <div class="workplace-image">☕</div>
+                
+                <div class="workplace-info">
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div>
+                            <div style="font-weight: 500;">コメダ珈琲店 西院店</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">京都市右京区西院巽町40-1</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">🚶</div>
+                        <div>阪急京都線 西院駅から徒歩2分</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">🚗</div>
+                        <div>駐車場あり（スタッフ利用可）</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">🍽️</div>
+                        <div>まかない50%割引</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 評価セクション -->
+            <section class="rating-section fade-in">
+                <h3 class="section-title">
+                    <span>⭐</span>
+                    職場の評価
+                </h3>
+                
+                <div class="rating-overview">
+                    <div class="rating-score">4.8</div>
+                    <div class="rating-details">
+                        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                        <div class="rating-count">23件のレビュー</div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="reviewer-name">Dさん (20代女性)</span>
+                        <span class="review-date">1週間前</span>
+                    </div>
+                    <div class="review-text">スタッフの皆さんがとても親切で、初日から安心して働けました！コーヒーの知識も教えてもらえて勉強になります。</div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="reviewer-name">Eさん (30代男性)</span>
+                        <span class="review-date">2週間前</span>
+                    </div>
+                    <div class="review-text">お客様も地元の方が多く、アットホームな雰囲気です。まかないのサンドイッチも美味しかったです！</div>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="reviewer-name">Fさん (20代女性)</span>
+                        <span class="review-date">3週間前</span>
+                    </div>
+                    <div class="review-text">研修がしっかりしているので、カフェ未経験でも安心でした。駅から近いのも嬉しいポイントです。</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 固定ボトムバー -->
+    <div class="bottom-bar">
+        <div class="bottom-actions">
+            <button class="btn-bookmark" id="bookmarkBtn">♡</button>
+            <button class="btn-apply" id="applyBtn">今すぐ応募する</button>
+        </div>
+    </div>
+
+    <script>
+        // ブックマーク機能
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        let isBookmarked = false;
+
+        bookmarkBtn.addEventListener('click', function() {
+            isBookmarked = !isBookmarked;
+            if (isBookmarked) {
+                this.classList.add('active');
+                this.textContent = '♥';
+                showNotification('お気に入りに追加しました');
+            } else {
+                this.classList.remove('active');
+                this.textContent = '♡';
+                showNotification('お気に入りから削除しました');
+            }
+        });
+
+        // 応募ボタン
+        const applyBtn = document.getElementById('applyBtn');
+        applyBtn.addEventListener('click', function() {
+            if (confirm('「カフェスタッフ - コメダ珈琲店 西院店」に応募しますか？\n\n応募後、企業から連絡があります。')) {
+                this.style.background = 'var(--success)';
+                this.textContent = '応募完了！';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    showNotification('応募が完了しました！\n企業からの連絡をお待ちください。');
+                }, 500);
+            }
+        });
+
+        // メッセージボタン
+        document.querySelectorAll('.message-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const memberName = this.closest('.member-item').querySelector('.member-name').textContent;
+                showNotification(`${memberName}にメッセージを送信します`);
+            });
+        });
+
+        // コミュニティアクション
+        document.querySelectorAll('.btn-community').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.includes('チャット') ? 'グループチャットに参加' : '仲間募集を投稿';
+                showNotification(`${action}します`);
+            });
+        });
+
+        // 通知機能
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--text-primary);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 1000;
+                white-space: pre-line;
+                text-align: center;
+                animation: slideDown 0.3s ease;
+                max-width: 320px;
+            `;
+            
+            notification.textContent = message;
+            
+            // アニメーション定義
+            if (!document.querySelector('#notification-style')) {
+                const style = document.createElement('style');
+                style.id = 'notification-style';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+                        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease reverse';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // スクロールアニメーション
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0px)';
+                }
+            });
+        }, observerOptions);
+
+        // 初期設定
+        document.querySelectorAll('.fade-in').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'all 0.6s ease';
+            observer.observe(element);
+        });
+
+        // 戻るボタンの代替実装
+        document.querySelector('.back-btn').addEventListener('click', function() {
+            if (document.referrer) {
+                history.back();
+            } else {
+                // トップページに戻る（実際の実装では適切なURLを設定）
+                showNotification('トップページに戻ります');
+            }
+        });
+
+        // シェアボタン
+        document.querySelector('[title="シェア"]').addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'カフェスタッフ - コメダ珈琲店 西院店',
+                    text: '西院で一緒に働きませんか？',
+                    url: window.location.href
+                });
+            } else {
+                // フォールバック
+                showNotification('求人情報をシェアします');
+            }
+        });
+
+        // その他メニュー
+        document.querySelector('[title="その他"]').addEventListener('click', function() {
+            const actions = ['報告する', 'ヘルプ', 'この企業の他の求人を見る'];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            showNotification(`${action}を選択しました`);
+        });
+
+        // ページ読み込み完了時の処理
+        window.addEventListener('load', function() {
+            // 求人の閲覧履歴を記録（実際の実装では適切な処理を行う）
+            console.log('求人詳細ページを表示: コメダ珈琲店 西院店');
+        });
+
+        // スマートフォンでの最適化
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            // タッチ操作の最適化
+            document.querySelectorAll('button').forEach(button => {
+                button.style.WebkitTapHighlightColor = 'transparent';
+            });
+        }
+    </script>
+</body>
+</html>
