@@ -22,7 +22,7 @@
         .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 10px; border-radius: 50%; transition: all 0.2s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
         .icon-btn:hover { background-color: var(--light-gray); color: var(--primary-color); }
         .main-content { padding: 24px 0; }
-        .job-header, .community-section, .job-details-section, .workplace-section, .rating-section { background: var(--white); border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .job-header, .community-section, .job-details-section, .workplace-section, .map-access-section, .rating-section { background: var(--white); border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
         .job-badge { background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 16px; }
         .job-title { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
         .job-company { font-size: 16px; color: var(--text-secondary); margin-bottom: 20px; }
@@ -53,6 +53,15 @@
         .workplace-info { display: grid; gap: 12px; }
         .info-item { display: flex; align-items: center; gap: 12px; font-size: 14px; }
         .info-icon { width: 32px; height: 32px; background: var(--accent-warm); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .map-container { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+        .map-image { width: 100%; display: block; height: auto; }
+        .btn-map-link { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--white); color: var(--text-primary); padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
+        .btn-map-link:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        .access-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .access-steps { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+        .access-step { display: flex; align-items: flex-start; gap: 12px; }
+        .step-number { flex-shrink: 0; width: 24px; height: 24px; background: var(--primary-color); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+        .access-step p { margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
         .rating-section { margin-bottom: 100px; }
         .rating-overview { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 16px; background: var(--accent-warm); border-radius: 12px; }
         .rating-score { font-size: 36px; font-weight: 700; color: var(--primary-color); }
@@ -162,6 +171,32 @@
                 </div>
             </section>
 
+            <section class="map-access-section fade-in">
+                <h3 class="section-title"><span>🗺️</span>地図・アクセス</h3>
+                <div class="map-container">
+                    <img src="https://placehold.jp/3d405b/ffffff/800x450.png?text=西院エリアの地図のプレースホルダー" alt="西院エリアの地図" class="map-image">
+                    <a href="#" id="openMapBtn" class="btn-map-link"><span>📍</span> Googleマップで開く</a>
+                </div>
+
+                <div class="access-info">
+                    <h4 class="access-title">🚶 西院駅からのアクセス</h4>
+                    <ol class="access-steps">
+                        <li class="access-step">
+                            <span class="step-number">1</span>
+                            <p>西改札口を出て、四条通を西へ約100m進みます。</p>
+                        </li>
+                        <li class="access-step">
+                            <span class="step-number">2</span>
+                            <p>最初の角を右に曲がり、路地を約50m進みます。</p>
+                        </li>
+                        <li class="access-step">
+                            <span class="step-number">3</span>
+                            <p>左手に見えるレンガ調の建物の1階が店舗です。</p>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
             <section class="rating-section fade-in">
                 <h3 class="section-title"><span>⭐</span>職場の評価</h3>
                 <div class="rating-overview">
@@ -190,6 +225,12 @@
             this.classList.toggle('active');
             this.textContent = this.classList.contains('active') ? '♥' : '♡';
             showNotification(this.classList.contains('active') ? 'お気に入りに追加しました' : 'お気に入りから削除しました');
+        });
+
+        const openMapBtn = document.getElementById('openMapBtn');
+        openMapBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showNotification('地図アプリで開きます（モック）');
         });
 
         function showNotification(message) {
