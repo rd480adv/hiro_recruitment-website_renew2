@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お気に入り - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-dark: #E64A19; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --accent-warm: #FFF8F3;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        @media (min-width: 1024px) { .container { max-width: 1200px; padding: 0 32px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; position: absolute; left: 0; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .main-content { padding: 24px 0; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+        .jobs-grid { display: grid; gap: 20px; }
+        .job-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-md); transition: all 0.3s ease; text-decoration: none; color: inherit; display: block; }
+        .job-card:hover { transform: translateY(-4px); border: 1px solid var(--primary-color); }
+        .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .job-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .job-company { font-size: 14px; color: var(--text-secondary); }
+        .job-wage { font-size: 22px; font-weight: 700; color: var(--primary-color); }
+        .job-details { display: flex; gap: 16px; margin-top: 16px; font-size: 14px; color: var(--text-secondary); flex-wrap: wrap; }
+        .job-detail { display: flex; align-items: center; gap: 4px; }
+        .empty-state { text-align: center; padding: 40px; background: var(--white); border-radius: 16px; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (min-width: 768px) { .jobs-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="back-btn" onclick="history.back(); return false;">←</a>
+                <h1 class="header-title">お気に入り</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <h2 class="page-title">お気に入り中の求人</h2>
+            <div class="jobs-grid">
+                <a href="demo_job_detail.html" class="job-card fade-in">
+                    <div class="job-header">
+                        <div>
+                            <h3 class="job-title">カフェスタッフ</h3>
+                            <p class="job-company">コメダ珈琲店 西院店</p>
+                        </div>
+                        <div class="job-wage">¥1,100</div>
+                    </div>
+                    <div class="job-details">
+                        <span class="job-detail">📍 徒歩2分</span>
+                        <span class="job-detail">🕐 14:00-18:00</span>
+                    </div>
+                </a>
+
+                <a href="demo_job_detail.html" class="job-card fade-in">
+                    <div class="job-header">
+                        <div>
+                            <h3 class="job-title">レジスタッフ</h3>
+                            <p class="job-company">イオンモール京都西院</p>
+                        </div>
+                        <div class="job-wage">¥1,050</div>
+                    </div>
+                    <div class="job-details">
+                        <span class="job-detail">📍 駅直結</span>
+                        <span class="job-detail">🕐 10:00-15:00</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- お気に入りが0件の場合の表示例 -->
+            <!--
+            <div class="empty-state fade-in">
+                <h3>お気に入りの求人はありません</h3>
+                <p style="margin-top: 8px; color: var(--text-secondary);">気になる求人があれば、詳細ページの<br>「♡」ボタンで追加できます。</p>
+            </div>
+            -->
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>応募手続き - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-light: #FF8A65; --primary-dark: #E64A19; --secondary-color: #FFF3E0; --secondary-light: #FFCCBC; --accent-color: #FF9800; --accent-warm: #FFF8F3; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --error: #F44336; --success: #4CAF50;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; gap: 16px; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .progress-section { background: var(--white); padding: 20px 0; border-bottom: 1px solid var(--light-gray); }
+        .progress-bar { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
+        .progress-step { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; transition: all 0.3s ease; }
+        .progress-step.active { background: var(--primary-color); color: white; }
+        .progress-step.completed { background: var(--success); color: white; }
+        .progress-step.inactive { background: var(--light-gray); color: var(--text-secondary); }
+        .progress-line { width: 40px; height: 2px; background: var(--light-gray); }
+        .progress-line.completed { background: var(--success); }
+        .progress-label { text-align: center; font-size: 12px; color: var(--text-secondary); }
+        .main-content { padding: 24px 0; }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        .job-summary, .profile-section, .confirmation-section, .success-section { background: var(--white); border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .job-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .job-company { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+        .job-details { display: grid; gap: 12px; }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--light-gray); }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { font-size: 14px; color: var(--text-secondary); }
+        .detail-value { font-size: 14px; font-weight: 500; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray); border-radius: 12px; font-size: 16px; }
+        .form-input:read-only { background: var(--light-gray); }
+        .form-textarea { width: 100%; min-height: 100px; padding: 12px 16px; border: 2px solid var(--light-gray); border-radius: 12px; font-size: 14px; resize: vertical; }
+        .char-count { text-align: right; font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        .confirmation-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--light-gray); }
+        .confirmation-item:last-child { border-bottom: none; }
+        .terms-section { background: var(--accent-warm); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .checkbox-group { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .checkbox { width: 20px; height: 20px; margin-top: 2px; }
+        .checkbox-label { font-size: 14px; line-height: 1.4; }
+        .link { color: var(--primary-color); text-decoration: underline; cursor: pointer; }
+        .success-section { text-align: center; }
+        .success-icon { font-size: 64px; margin-bottom: 20px; animation: bounce 0.6s ease; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        .success-title { font-size: 24px; font-weight: 700; color: var(--success); margin-bottom: 12px; }
+        .success-message { font-size: 16px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.5; }
+        .next-steps { background: var(--accent-warm); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left; }
+        .next-step-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .next-step-item:last-child { margin-bottom: 0; }
+        .step-icon { width: 24px; height: 24px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-top: 2px; flex-shrink: 0; }
+        .step-text { flex: 1; font-size: 14px; }
+        .button-group { display: flex; gap: 12px; padding-top: 20px; }
+        .btn-secondary { flex: 1; background: var(--white); color: var(--primary-color); border: 2px solid var(--primary-color); padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-primary { flex: 2; background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-primary:disabled { background: var(--light-gray); color: var(--text-secondary); cursor: not-allowed; }
+        .btn-full, .btn-outline { width: 100%; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; display: block; }
+        .btn-full { background: var(--primary-color); color: white; }
+        .btn-outline { background: var(--white); color: var(--primary-color); border: 2px solid var(--primary-color); margin-top: 12px; }
+        .loading { display: none; text-align: center; padding: 40px; }
+        .loading.active { display: block; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--light-gray); border-top: 4px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container"><div class="header-content"><button class="back-btn" onclick="handleBack()">←</button><h1 class="header-title">応募手続き</h1></div></div>
+    </header>
+
+    <section class="progress-section">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-step active" id="step1">1</div><div class="progress-line" id="line1"></div>
+                <div class="progress-step inactive" id="step2">2</div><div class="progress-line" id="line2"></div>
+                <div class="progress-step inactive" id="step3">3</div><div class="progress-line" id="line3"></div>
+                <div class="progress-step inactive" id="step4">✓</div>
+            </div>
+            <div class="progress-label" id="stepLabel">求人内容の確認</div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="step-content active" id="stepContent1">
+                <section class="job-summary fade-in">
+                    <h2 class="job-title">カフェスタッフ</h2><p class="job-company">コメダ珈琲店 西院店</p>
+                    <div class="job-details">
+                        <div class="detail-row"><span class="detail-label">勤務日時</span><span class="detail-value">2025年8月5日(火) 14:00-18:00</span></div>
+                        <div class="detail-row"><span class="detail-label">時給</span><span class="detail-value">1,100円</span></div>
+                        <div class="detail-row"><span class="detail-label">勤務場所</span><span class="detail-value">西院駅徒歩2分</span></div>
+                    </div>
+                </section>
+                <div class="button-group"><a href="demo_job_detail.html" class="btn-secondary">戻る</a><button class="btn-primary" onclick="nextStep(2)">この内容で応募する</button></div>
+            </div>
+
+            <div class="step-content" id="stepContent2">
+                <section class="profile-section fade-in">
+                    <h3 class="section-title"><span>👤</span>プロフィール確認</h3>
+                    <div class="form-group"><label class="form-label">お名前</label><input type="text" class="form-input" value="山田 太郎" readonly></div>
+                    <div class="form-group"><label class="form-label">電話番号</label><input type="tel" class="form-input" value="090-1234-5678" readonly></div>
+                    <div class="form-group"><label class="form-label">メールアドレス</label><input type="email" class="form-input" value="yamada@example.com"></div>
+                    <div class="form-group"><label class="form-label">志望動機・自己PR（任意）</label><textarea class="form-textarea" id="motivation" placeholder="あなたの経験やスキルをアピールしましょう。" maxlength="200"></textarea><div class="char-count"><span id="charCount">0</span>/200文字</div></div>
+                </section>
+                <div class="button-group"><button class="btn-secondary" onclick="prevStep(1)">戻る</button><button class="btn-primary" onclick="nextStep(3)">次へ</button></div>
+            </div>
+
+            <div class="step-content" id="stepContent3">
+                <section class="confirmation-section fade-in">
+                    <h3 class="section-title"><span>📋</span>応募内容の最終確認</h3>
+                    <div class="confirmation-item"><span class="detail-label">求人</span><span class="detail-value">カフェスタッフ<br>コメダ珈琲店 西院店</span></div>
+                    <div class="confirmation-item"><span class="detail-label">応募者</span><span class="detail-value">山田 太郎<br>yamada@example.com</span></div>
+                </section>
+                <section class="terms-section">
+                    <div class="checkbox-group"><input type="checkbox" id="terms" class="checkbox" required><label for="terms" class="checkbox-label"><span class="link" onclick="showNotification('利用規約を表示します')">利用規約</span>と<span class="link" onclick="showNotification('プライバシーポリシーを表示します')">プライバシーポリシー</span>に同意</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="contact" class="checkbox" required><label for="contact" class="checkbox-label">企業からの連絡に同意</label></div>
+                </section>
+                <div class="button-group"><button class="btn-secondary" onclick="prevStep(2)">戻る</button><button class="btn-primary" id="submitBtn" onclick="submitApplication()" disabled>応募を確定する</button></div>
+            </div>
+
+            <div class="step-content" id="stepContent4">
+                <section class="success-section fade-in">
+                    <div class="success-icon">🎉</div><h2 class="success-title">応募完了！</h2>
+                    <p class="success-message">企業からの連絡をお待ちください。</p>
+                    <div class="next-steps">
+                        <div class="next-step-item"><div class="step-icon">1</div><div class="step-text">24時間以内に企業から連絡があります</div></div>
+                        <div class="next-step-item"><div class="step-icon">2</div><div class="step-text">仲間とのグループチャットに参加できます</div></div>
+                    </div>
+                    <a href="demo_application_history.html" class="btn-full">応募状況を確認</a>
+                    <a href="demo_messages.html" class="btn-outline">メッセージを確認</a>
+                </section>
+            </div>
+
+            <div class="loading" id="loadingScreen"><div class="spinner"></div><p>応募処理中...</p></div>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const stepLabels = ['', '求人内容の確認', 'プロフィール確認', '最終確認', '応募完了'];
+        function updateProgressBar(step) {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                const lineEl = document.getElementById(`line${i}`);
+                if (i < step) { stepEl.className = 'progress-step completed'; if(lineEl) lineEl.className = 'progress-line completed'; }
+                else if (i === step) { stepEl.className = 'progress-step active'; if(lineEl) lineEl.className = 'progress-line'; }
+                else { stepEl.className = 'progress-step inactive'; if(lineEl) lineEl.className = 'progress-line'; }
+            }
+            document.getElementById('stepLabel').textContent = stepLabels[step];
+        }
+        function goToStep(step) {
+            document.getElementById(`stepContent${currentStep}`).classList.remove('active');
+            updateProgressBar(step);
+            currentStep = step;
+            const newStepContent = document.getElementById(`stepContent${currentStep}`);
+            newStepContent.classList.add('active');
+            newStepContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function nextStep(step) { goToStep(step); }
+        function prevStep(step) { goToStep(step); }
+        function handleBack() {
+            if (currentStep > 1) prevStep(currentStep - 1);
+            else if (confirm('応募を中止しますか？')) history.back();
+        }
+        function submitApplication() {
+            document.getElementById(`stepContent${currentStep}`).style.display = 'none';
+            document.getElementById('loadingScreen').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.remove('active');
+                nextStep(4);
+            }, 1500);
+        }
+        const motivation = document.getElementById('motivation');
+        if(motivation) motivation.addEventListener('input', () => { document.getElementById('charCount').textContent = motivation.value.length; });
+        const termsCb = document.getElementById('terms');
+        const contactCb = document.getElementById('contact');
+        const submitBtn = document.getElementById('submitBtn');
+        function validateConfirmStep() { if(submitBtn) submitBtn.disabled = !(termsCb.checked && contactCb.checked); }
+        if(termsCb) termsCb.addEventListener('change', validateConfirmStep);
+        if(contactCb) contactCb.addEventListener('change', validateConfirmStep);
+        function showNotification(message) {
+            const el = document.createElement('div');
+            el.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: white; padding: 12px 20px; border-radius: 25px; font-size: 14px; z-index: 1001; animation: slideDown 0.3s ease;`;
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
