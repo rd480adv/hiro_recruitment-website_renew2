@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求人情報同期 - SaiinWork 管理画面</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-light: #FF8A65; --primary-dark: #E64A19;
+            --secondary-color: #FFF3E0; --accent-color: #FF9800; --accent-warm: #FFF8F3;
+            --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF;
+            --light-gray: #F5F5F5; --success: #4CAF50; --error: #F44336; --white: #FFFFFF;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--light-gray); margin: 0;
+        }
+        .sidebar {
+            width: 260px; background: var(--white); height: 100vh;
+            padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            transform: translateX(-100%);
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        .logo {
+            font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
+            letter-spacing: -0.5px; text-decoration: none; margin-bottom: 32px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 14px; margin-right: 4px;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .nav-category {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; margin: 24px 0 8px 12px;
+        }
+        .nav-item a {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            border-radius: var(--border-radius-md); text-decoration: none;
+            color: var(--text-primary); font-weight: 500; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+        .nav-item a:hover { background-color: var(--accent-warm); color: var(--primary-dark); }
+        .nav-item a.active { background-color: var(--secondary-color); color: var(--primary-dark); font-weight: 600; }
+        .nav-icon { font-size: 20px; }
+        .logout-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            text-decoration: none; color: var(--text-secondary);
+        }
+        .main-content {
+            flex: 1; padding: 40px; margin-left: 0;
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: block;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .overlay.active {
+            display: block;
+        }
+        .content-area {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+        .sync-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            background-color: var(--accent-warm);
+            border-radius: var(--border-radius-md);
+            margin-bottom: 32px;
+        }
+        .last-sync-info p { margin: 0; color: var(--text-secondary); }
+        .last-sync-info .time { font-weight: 600; color: var(--text-primary); font-size: 18px; }
+        .btn-sync {
+            padding: 12px 24px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 600; font-size: 16px;
+            background-color: var(--primary-color); color: var(--white);
+            transition: all 0.2s ease;
+        }
+        .btn-sync:hover { background-color: var(--primary-dark); }
+        .btn-sync:disabled { background-color: var(--light-gray); cursor: not-allowed; }
+
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th, .history-table td {
+            padding: 16px; text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .history-table th {
+            font-size: 14px; font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .status-badge { padding: 4px 12px; border-radius: 16px; font-weight: 600; font-size: 13px; }
+        .status-success { background-color: #E8F5E9; color: #388E3C; }
+        .status-fail { background-color: #FFEBEE; color: #D32F2F; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="dashboard.html" class="logo">
+            <div class="logo-icon">S</div><span class="logo-text">SaiinWork</span>
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-category">AI応募支援機能</li>
+                <li class="nav-item"><a href="demo_applicant_screening.html"><span class="nav-icon">🔍</span>応募者スクリーニング</a></li>
+                <li class="nav-item"><a href="demo_resume_parsing.html"><span class="nav-icon">📄</span>画像解析機能</a></li>
+
+                <li class="nav-category">AI運用支援機能</li>
+                <li class="nav-item"><a href="demo_seo_optimization.html"><span class="nav-icon">📈</span>SEO最適化</a></li>
+                <li class="nav-item"><a href="demo_content_generation.html"><span class="nav-icon">✍️</span>コンテンツ自動生成</a></li>
+                <li class="nav-item"><a href="demo_data_analysis.html"><span class="nav-icon">📊</span>データ分析</a></li>
+                <li class="nav-item"><a href="demo_feedback.html"><span class="nav-icon">👍</span>フィードバック機能</a></li>
+                <li class="nav-item"><a href="demo_predictive_analysis.html"><span class="nav-icon">🔮</span>予測分析</a></li>
+
+                <li class="nav-category">連携機能</li>
+                <li class="nav-item"><a href="demo_job_sync.html" class="active"><span class="nav-icon">🔄</span>求人情報同期</a></li>
+                <li class="nav-item"><a href="demo_sns_integration.html"><span class="nav-icon">📱</span>SNS連携</a></li>
+                <li class="nav-item"><a href="demo_external_posting.html"><span class="nav-icon">📤</span>他媒体連携</a></li>
+            </ul>
+        </nav>
+        <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
+    </aside>
+
+    <div class="overlay"></div>
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>求人情報同期</h1>
+        </header>
+
+        <div class="content-area">
+            <div class="sync-dashboard">
+                <div class="last-sync-info">
+                    <p>最終同期日時</p>
+                    <p class="time" id="last-sync-time">2024/05/12 03:00:05</p>
+                </div>
+                <button class="btn-sync" id="sync-now-btn">今すぐ同期</button>
+            </div>
+
+            <h3>同期履歴</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>実行日時</th>
+                        <th>ステータス</th>
+                        <th>新規求人数</th>
+                        <th>更新求人数</th>
+                        <th>実行者</th>
+                    </tr>
+                </thead>
+                <tbody id="history-list">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Job Sync Mock Logic
+            const syncNowBtn = document.getElementById('sync-now-btn');
+            const historyList = document.getElementById('history-list');
+            const lastSyncTimeEl = document.getElementById('last-sync-time');
+
+            let dummyHistory = [
+                { time: '2024/05/12 03:00:05', status: 'success', new: 5, updated: 12, by: '自動実行' },
+                { time: '2024/05/11 15:30:10', status: 'success', new: 2, updated: 8, by: '運用者A' },
+                { time: '2024/05/11 03:00:02', status: 'fail', new: 0, updated: 0, by: '自動実行' },
+                { time: '2024/05/10 03:00:08', status: 'success', new: 8, updated: 25, by: '自動実行' },
+            ];
+
+            function renderHistory() {
+                historyList.innerHTML = '';
+                dummyHistory.forEach(item => {
+                    const statusClass = item.status === 'success' ? 'status-success' : 'status-fail';
+                    const statusText = item.status === 'success' ? '成功' : '失敗';
+                    const row = `
+                        <tr>
+                            <td>${item.time}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${item.new}件</td>
+                            <td>${item.updated}件</td>
+                            <td>${item.by}</td>
+                        </tr>
+                    `;
+                    historyList.innerHTML += row;
+                });
+            }
+
+            syncNowBtn.addEventListener('click', () => {
+                syncNowBtn.disabled = true;
+                syncNowBtn.textContent = '同期中...';
+
+                setTimeout(() => {
+                    const now = new Date();
+                    const timeString = now.toLocaleString('ja-JP').replace(/\//g, '/');
+                    const isSuccess = Math.random() > 0.2; // 80% success rate
+
+                    const newEntry = {
+                        time: timeString,
+                        status: isSuccess ? 'success' : 'fail',
+                        new: isSuccess ? Math.floor(Math.random() * 5) : 0,
+                        updated: isSuccess ? Math.floor(Math.random() * 15) : 0,
+                        by: '手動実行'
+                    };
+
+                    dummyHistory.unshift(newEntry);
+                    renderHistory();
+
+                    lastSyncTimeEl.textContent = timeString;
+                    syncNowBtn.disabled = false;
+                    syncNowBtn.textContent = '今すぐ同期';
+
+                }, 2000);
+            });
+
+            renderHistory();
+        });
+    </script>
+</body>
+</html>

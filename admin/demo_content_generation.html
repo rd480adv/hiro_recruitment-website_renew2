@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コンテンツ自動生成 - SaiinWork 管理画面</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-light: #FF8A65; --primary-dark: #E64A19;
+            --secondary-color: #FFF3E0; --accent-color: #FF9800; --accent-warm: #FFF8F3;
+            --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF;
+            --light-gray: #F5F5F5; --success: #4CAF50; --error: #F44336; --white: #FFFFFF;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--light-gray); margin: 0;
+        }
+        .sidebar {
+            width: 260px; background: var(--white); height: 100vh;
+            padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            transform: translateX(-100%);
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        .logo {
+            font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
+            letter-spacing: -0.5px; text-decoration: none; margin-bottom: 32px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 14px; margin-right: 4px;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .nav-category {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; margin: 24px 0 8px 12px;
+        }
+        .nav-item a {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            border-radius: var(--border-radius-md); text-decoration: none;
+            color: var(--text-primary); font-weight: 500; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+        .nav-item a:hover { background-color: var(--accent-warm); color: var(--primary-dark); }
+        .nav-item a.active { background-color: var(--secondary-color); color: var(--primary-dark); font-weight: 600; }
+        .nav-icon { font-size: 20px; }
+        .logout-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            text-decoration: none; color: var(--text-secondary);
+        }
+        .main-content {
+            flex: 1; padding: 40px; margin-left: 0;
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: block;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .overlay.active {
+            display: block;
+        }
+        .content-area {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+        .generation-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 32px;
+        }
+        .input-form h3 { font-size: 20px; margin-bottom: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 14px; font-weight: 500;
+            color: var(--text-primary); margin-bottom: 8px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px; border: 1px solid #E0E0E0;
+            border-radius: 8px; font-size: 15px; box-sizing: border-box;
+        }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .btn-generate {
+            width: 100%; background: var(--primary-color); color: white;
+            border: none; padding: 14px; border-radius: 8px; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-generate:hover { background-color: var(--primary-dark); }
+        .output-area h3 { font-size: 20px; margin-bottom: 24px; }
+        .generated-content {
+            background-color: var(--accent-warm);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px; padding: 20px;
+            min-height: 400px;
+            white-space: pre-wrap;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        .loader { text-align: center; padding: 40px; display: none; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--light-gray);
+            border-top-color: var(--primary-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="dashboard.html" class="logo">
+            <div class="logo-icon">S</div><span class="logo-text">SaiinWork</span>
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-category">AI応募支援機能</li>
+                <li class="nav-item"><a href="demo_applicant_screening.html"><span class="nav-icon">🔍</span>応募者スクリーニング</a></li>
+                <li class="nav-item"><a href="demo_resume_parsing.html"><span class="nav-icon">📄</span>画像解析機能</a></li>
+
+                <li class="nav-category">AI運用支援機能</li>
+                <li class="nav-item"><a href="demo_seo_optimization.html"><span class="nav-icon">📈</span>SEO最適化</a></li>
+                <li class="nav-item"><a href="demo_content_generation.html" class="active"><span class="nav-icon">✍️</span>コンテンツ自動生成</a></li>
+                <li class="nav-item"><a href="demo_data_analysis.html"><span class="nav-icon">📊</span>データ分析</a></li>
+                <li class="nav-item"><a href="demo_feedback.html"><span class="nav-icon">👍</span>フィードバック機能</a></li>
+                <li class="nav-item"><a href="demo_predictive_analysis.html"><span class="nav-icon">🔮</span>予測分析</a></li>
+
+                <li class="nav-category">連携機能</li>
+                <li class="nav-item"><a href="demo_job_sync.html"><span class="nav-icon">🔄</span>求人情報同期</a></li>
+                <li class="nav-item"><a href="demo_sns_integration.html"><span class="nav-icon">📱</span>SNS連携</a></li>
+                <li class="nav-item"><a href="demo_external_posting.html"><span class="nav-icon">📤</span>他媒体連携</a></li>
+            </ul>
+        </nav>
+        <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
+    </aside>
+
+    <div class="overlay"></div>
+    <main class="main-content">
+        <header class="header">
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>求人票コンテンツ自動生成</h1>
+        </header>
+
+        <div class="content-area">
+            <div class="generation-container">
+                <div class="input-form">
+                    <h3>求人情報の入力</h3>
+                    <div class="form-group">
+                        <label for="job-title">職種名</label>
+                        <input type="text" id="job-title" value="カフェスタッフ">
+                    </div>
+                    <div class="form-group">
+                        <label for="job-keywords">キーワード (3〜5個)</label>
+                        <input type="text" id="job-keywords" value="接客, コーヒー, 駅チカ, 未経験OK, シフト制">
+                    </div>
+                    <div class="form-group">
+                        <label for="job-notes">特記事項・アピールポイント</label>
+                        <textarea id="job-notes">新店舗のオープニングスタッフです。みんなで一緒にお店を作っていきましょう！</textarea>
+                    </div>
+                    <button class="btn-generate" id="generate-btn">AIで求人票を生成</button>
+                </div>
+                <div class="output-area">
+                    <h3>AI生成結果</h3>
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                        <p>AIが求人票を作成中です...</p>
+                    </div>
+                    <div class="generated-content" id="generated-content">
+                        <p style="color: var(--text-secondary); text-align: center; margin-top: 80px;">左のフォームに入力して「生成」ボタンを押してください。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Content Generation Mock Logic
+            const generateBtn = document.getElementById('generate-btn');
+            const loader = document.getElementById('loader');
+            const generatedContentContainer = document.getElementById('generated-content');
+
+            const jobTitleInput = document.getElementById('job-title');
+            const keywordsInput = document.getElementById('job-keywords');
+            const notesInput = document.getElementById('job-notes');
+
+            generateBtn.addEventListener('click', () => {
+                const title = jobTitleInput.value || "カフェスタッフ";
+                const keywords = keywordsInput.value || "接客, コーヒー";
+                const notes = notesInput.value || "";
+
+                generatedContentContainer.style.display = 'none';
+                loader.style.display = 'block';
+                generateBtn.disabled = true;
+                generateBtn.textContent = '生成中...';
+
+                setTimeout(() => {
+                    const dummyContent = `
+【タイトル】
+オープニングスタッフ募集！人気の${title}として新しいキャリアをスタートしませんか？
+
+【仕事内容】
+お客様に美味しいコーヒーとくつろぎの空間を提供するお仕事です。
+主な業務は、レジ対応、ドリンク作成、簡単な調理、清掃など。
+キーワード： ${keywords}
+
+【アピールポイント】
+${notes ? notes : '未経験者大歓迎！研修制度が充実しているので、初めての方でも安心して働けます。コーヒーの知識も自然と身につきますよ。'}
+シフトは柔軟に対応しますので、学生さんや主婦（夫）の方も働きやすい環境です。
+
+【求める人材】
+・人と話すのが好きな方
+・コーヒーが好きな方
+・新しいことにチャレンジしたい方
+
+ご応募お待ちしております！
+                    `;
+                    generatedContentContainer.textContent = dummyContent.trim();
+
+                    loader.style.display = 'none';
+                    generatedContentContainer.style.display = 'block';
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'AIで求人票を生成';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
