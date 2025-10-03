@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,77 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
         .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .tabs { display: flex; border-bottom: 2px solid var(--light-gray); margin-bottom: 24px; }
+        .tab-item { padding: 12px 20px; cursor: pointer; font-weight: 500; color: var(--text-secondary); }
+        .tab-item.active { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); }
+
+        .applicant-table { width: 100%; border-collapse: collapse; }
+        .applicant-table th, .applicant-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--light-gray); }
+        .applicant-table th { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+        .status-badge { padding: 4px 12px; border-radius: 16px; font-weight: 600; font-size: 13px; }
+        .status-pass { background-color: #E8F5E9; color: #388E3C; }
+        .status-fail { background-color: #FFEBEE; color: #D32F2F; }
+        .status-review { background-color: #FFFDE7; color: #FBC02D; }
+
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 500; transition: all 0.2s ease;
         }
+        .btn-primary { background-color: var(--primary-color); color: var(--white); }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-secondary { background-color: var(--light-gray); color: var(--text-primary); }
+        .btn-secondary:hover { background-color: #e0e0e0; }
     </style>
 </head>
 <body>
@@ -97,17 +164,131 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <h1>応募者スクリーニング</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「応募者スクリーニング」機能のプロトタイプです。</p>
-            <p>必須資格やキーワードを基に応募者を自動でチェックする画面がここに表示されます。</p>
+            <div class="tabs">
+                <div class="tab-item active" data-job="job1">カフェスタッフ (コメダ珈琲店)</div>
+                <div class="tab-item" data-job="job2">ホールスタッフ (焼肉の名門 天壇)</div>
+                <div class="tab-item" data-job="job3">アパレル販売 (Right-on)</div>
+            </div>
+
+            <table class="applicant-table">
+                <thead>
+                    <tr>
+                        <th>応募者名</th>
+                        <th>応募日時</th>
+                        <th>マッチ度</th>
+                        <th>AI判定</th>
+                        <th>判定理由</th>
+                        <th>アクション</th>
+                    </tr>
+                </thead>
+                <tbody id="applicant-list">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Applicant Screening Mock Logic
+            const dummyData = {
+                job1: [
+                    { name: '山田 太郎', date: '2024/05/10 14:30', match: 92, status: 'pass', reason: '必須スキル「接客経験」に合致' },
+                    { name: '佐藤 花子', date: '2024/05/10 11:15', match: 85, status: 'pass', reason: '週4日以上勤務可能' },
+                    { name: '鈴木 一郎', date: '2024/05/09 18:00', match: 68, status: 'review', reason: '学生、勤務時間に制限あり' },
+                    { name: '田中 優子', date: '2024/05/09 09:45', match: 45, status: 'fail', reason: '勤務可能日数が週2日' },
+                ],
+                job2: [
+                    { name: '伊藤 健太', date: '2024/05/11 10:00', match: 88, status: 'pass', reason: '飲食店での勤務経験あり' },
+                    { name: '渡辺 恵美', date: '2024/05/10 16:20', match: 76, status: 'review', reason: '長期勤務希望' },
+                ],
+                job3: [
+                    { name: '山本 さやか', date: '2024/05/11 12:00', match: 95, status: 'pass', reason: 'アパレル販売経験3年' },
+                    { name: '中村 拓也', date: '2024/05/10 19:05', match: 55, status: 'fail', reason: '希望職種と異なると判断' },
+                    { name: '小林 直樹', date: '2024/05/09 14:30', match: 72, status: 'review', reason: '未経験だが意欲は高い' },
+                ]
+            };
+
+            const applicantList = document.getElementById('applicant-list');
+            const tabs = document.querySelectorAll('.tab-item');
+
+            function renderApplicants(jobId) {
+                const applicants = dummyData[jobId] || [];
+                applicantList.innerHTML = '';
+                if (applicants.length === 0) {
+                    applicantList.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">この求人への応募はまだありません。</td></tr>';
+                    return;
+                }
+
+                applicants.forEach(applicant => {
+                    const statusMap = {
+                        pass: { class: 'status-pass', text: '合格' },
+                        fail: { class: 'status-fail', text: '不合格' },
+                        review: { class: 'status-review', text: '要確認' }
+                    };
+                    const statusInfo = statusMap[applicant.status];
+
+                    const row = `
+                        <tr>
+                            <td>${applicant.name}</td>
+                            <td>${applicant.date}</td>
+                            <td>
+                                <div style="width: 100%; background: var(--light-gray); border-radius: 4px; overflow: hidden;">
+                                    <div style="width: ${applicant.match}%; background: ${applicant.match > 80 ? 'var(--success)' : applicant.match > 60 ? 'var(--accent-color)' : 'var(--error)'}; color: white; text-align: center; padding: 4px 0; font-size: 13px;">
+                                        ${applicant.match}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge ${statusInfo.class}">${statusInfo.text}</span></td>
+                            <td>${applicant.reason}</td>
+                            <td>
+                                <button class="btn btn-secondary">詳細</button>
+                                <button class="btn btn-primary">連絡</button>
+                            </td>
+                        </tr>
+                    `;
+                    applicantList.innerHTML += row;
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const jobId = this.getAttribute('data-job');
+                    renderApplicants(jobId);
+                });
+            });
+
+            // Initial render
+            renderApplicants('job1');
+        });
+    </script>
 </body>
 </html>

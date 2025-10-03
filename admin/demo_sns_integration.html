@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,97 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 20px;
         }
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .account-card {
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .account-icon { font-size: 40px; margin-bottom: 12px; }
+        .account-card h4 { margin: 0 0 4px; font-size: 18px; }
+        .account-card .status { font-size: 14px; }
+        .status-connected { color: var(--success); }
+        .status-disconnected { color: var(--text-secondary); }
+        .btn-toggle-account {
+            margin-top: 16px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-connect { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .btn-disconnect { background: white; color: var(--error); border-color: var(--error); }
+
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th, .history-table td {
+            padding: 16px; text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .history-table th { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -97,17 +184,121 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <h1>SNS連携</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「SNS連携」機能のプロトタイプです。</p>
-            <p>FacebookやInstagramなどのSNSアカウントと連携し、求人情報を自動で投稿する設定や投稿履歴を確認する画面がここに表示されます。</p>
+            <h2 class="section-title">連携アカウント</h2>
+            <div class="accounts-grid">
+                <div class="account-card">
+                    <div class="account-icon">📘</div>
+                    <h4>Facebook</h4>
+                    <p class="status status-connected">連携済み</p>
+                    <button class="btn-toggle-account btn-disconnect">連携を解除</button>
+                </div>
+                <div class="account-card">
+                    <div class="account-icon">📸</div>
+                    <h4>Instagram</h4>
+                    <p class="status status-connected">連携済み</p>
+                    <button class="btn-toggle-account btn-disconnect">連携を解除</button>
+                </div>
+                <div class="account-card">
+                    <div class="account-icon">✖️</div>
+                    <h4>X (Twitter)</h4>
+                    <p class="status status-disconnected">未連携</p>
+                    <button class="btn-toggle-account btn-connect">連携する</button>
+                </div>
+            </div>
+
+            <h2 class="section-title">投稿履歴</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>投稿日時</th>
+                        <th>求人名</th>
+                        <th>投稿先SNS</th>
+                        <th>ステータス</th>
+                    </tr>
+                </thead>
+                <tbody id="post-history">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // SNS Integration Mock Logic
+            const postHistory = document.getElementById('post-history');
+            const dummyHistoryData = [
+                { time: '2024/05/12 18:00', job: 'カフェスタッフ', sns: 'Facebook', status: '成功' },
+                { time: '2024/05/12 18:00', job: 'カフェスタッフ', sns: 'Instagram', status: '成功' },
+                { time: '2024/05/11 11:30', job: 'アパレル販売', sns: 'Instagram', status: '成功' },
+                { time: '2024/05/10 09:00', job: 'ホールスタッフ', sns: 'Facebook', status: '失敗' },
+                { time: '2024/05/09 17:45', job: 'データ入力', sns: 'Facebook', status: '成功' },
+            ];
+
+            function renderHistory() {
+                postHistory.innerHTML = '';
+                dummyHistoryData.forEach(item => {
+                    const statusColor = item.status === '成功' ? 'var(--success)' : 'var(--error)';
+                    const row = `
+                        <tr>
+                            <td>${item.time}</td>
+                            <td>${item.job}</td>
+                            <td>${item.sns}</td>
+                            <td style="color: ${statusColor}; font-weight: 600;">${item.status}</td>
+                        </tr>
+                    `;
+                    postHistory.innerHTML += row;
+                });
+            }
+
+            // Account toggle buttons
+            const accountGrid = document.querySelector('.accounts-grid');
+            accountGrid.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-toggle-account')) {
+                    const card = e.target.closest('.account-card');
+                    const statusEl = card.querySelector('.status');
+                    if(e.target.classList.contains('btn-disconnect')) {
+                        statusEl.textContent = '未連携';
+                        statusEl.className = 'status status-disconnected';
+                        e.target.textContent = '連携する';
+                        e.target.className = 'btn-toggle-account btn-connect';
+                    } else {
+                        statusEl.textContent = '連携済み';
+                        statusEl.className = 'status status-connected';
+                        e.target.textContent = '連携を解除';
+                        e.target.className = 'btn-toggle-account btn-disconnect';
+                    }
+                }
+            });
+
+            renderHistory();
+        });
+    </script>
 </body>
 </html>

@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,111 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
+        .kpi-card {
+            background: var(--accent-warm);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+        }
+        .kpi-card h3 { font-size: 16px; color: var(--text-secondary); margin: 0 0 8px; }
+        .kpi-card .value { font-size: 28px; font-weight: 700; color: var(--primary-color); }
+        .kpi-card .change { font-size: 14px; margin-left: 8px; }
+        .change-up { color: var(--success); }
+        .change-down { color: var(--error); }
+
+        .chart-container {
+            margin-bottom: 32px;
+        }
+        .chart-container h3 { font-size: 20px; margin-bottom: 20px; }
+        .bar-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 250px;
+            border-left: 2px solid var(--light-gray);
+            border-bottom: 2px solid var(--light-gray);
+            padding: 10px 0;
+        }
+        .bar {
+            width: 40px;
+            background-color: var(--primary-light);
+            text-align: center;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+            position: relative;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            width: 100%;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .insights-section {
+            background: var(--accent-warm);
+            border-radius: var(--border-radius-md);
+            padding: 24px;
+        }
+        .insights-section h3 { font-size: 20px; margin-bottom: 16px; }
+        .insights-section ul { padding-left: 20px; margin: 0; }
+        .insights-section li { margin-bottom: 12px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -97,17 +198,101 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>データ分析</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>データ分析ダッシュボード</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「データ分析」機能のプロトタイプです。</p>
-            <p>ユーザー行動ログやサイト利用状況を分析し、KPIを可視化・改善提案を行うダッシュボードがここに表示されます。</p>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>訪問者数 (週)</h3>
+                    <p class="value">1,280 <span class="change change-up">↑ 12%</span></p>
+                </div>
+                <div class="kpi-card">
+                    <h3>応募転換率</h3>
+                    <p class="value">3.5% <span class="change change-up">↑ 0.2%</span></p>
+                </div>
+                <div class="kpi-card">
+                    <h3>新規登録者数 (週)</h3>
+                    <p class="value">45 <span class="change change-down">↓ 5%</span></p>
+                </div>
+                <div class="kpi-card">
+                    <h3>平均セッション時間</h3>
+                    <p class="value">3分12秒 <span class="change change-up">↑ 8秒</span></p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>人気の求人カテゴリ</h3>
+                <div class="bar-chart" id="category-chart">
+                    <!-- JSで動的に挿入 -->
+                </div>
+            </div>
+
+            <div class="insights-section">
+                <h3>AIによる改善提案</h3>
+                <ul id="ai-insights">
+                    <li>「カフェ」カテゴリの求人閲覧数が多いため、特集ページの作成を推奨します。</li>
+                    <li>モバイルからの離脱率がPCより20%高いです。応募ボタンの視認性改善を検討してください。</li>
+                    <li>「未経験OK」キーワードでの流入が増加しています。このキーワードを含む求人をトップページでアピールしましょう。</li>
+                </ul>
+            </div>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Data Analysis Mock Logic
+            const categoryChart = document.getElementById('category-chart');
+            const dummyChartData = [
+                { label: '飲食', value: 120 },
+                { label: '販売', value: 95 },
+                { label: '軽作業', value: 80 },
+                { label: '事務', value: 65 },
+                { label: '教育', value: 40 },
+                { label: 'その他', value: 55 },
+            ];
+
+            function renderBarChart() {
+                const maxValue = Math.max(...dummyChartData.map(d => d.value));
+                categoryChart.innerHTML = '';
+
+                dummyChartData.forEach(item => {
+                    const barHeight = (item.value / maxValue) * 100;
+                    const barEl = document.createElement('div');
+                    barEl.className = 'bar';
+                    barEl.style.height = `${barHeight}%`;
+                    barEl.innerHTML = `
+                        ${item.value}
+                        <div class="bar-label">${item.label}</div>
+                    `;
+                    categoryChart.appendChild(barEl);
+                });
+            }
+
+            renderBarChart();
+        });
+    </script>
 </body>
 </html>

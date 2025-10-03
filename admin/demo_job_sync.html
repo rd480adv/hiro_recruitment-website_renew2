@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,87 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .sync-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            background-color: var(--accent-warm);
+            border-radius: var(--border-radius-md);
+            margin-bottom: 32px;
         }
+        .last-sync-info p { margin: 0; color: var(--text-secondary); }
+        .last-sync-info .time { font-weight: 600; color: var(--text-primary); font-size: 18px; }
+        .btn-sync {
+            padding: 12px 24px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 600; font-size: 16px;
+            background-color: var(--primary-color); color: var(--white);
+            transition: all 0.2s ease;
+        }
+        .btn-sync:hover { background-color: var(--primary-dark); }
+        .btn-sync:disabled { background-color: var(--light-gray); cursor: not-allowed; }
+
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th, .history-table td {
+            padding: 16px; text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .history-table th {
+            font-size: 14px; font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .status-badge { padding: 4px 12px; border-radius: 16px; font-weight: 600; font-size: 13px; }
+        .status-success { background-color: #E8F5E9; color: #388E3C; }
+        .status-fail { background-color: #FFEBEE; color: #D32F2F; }
     </style>
 </head>
 <body>
@@ -97,17 +174,119 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <h1>求人情報同期</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「求人情報同期」機能のプロトタイプです。</p>
-            <p>既存の求人管理システムから求人データを自動で取り込み、同期する設定や実行ログを確認する画面がここに表示されます。</p>
+            <div class="sync-dashboard">
+                <div class="last-sync-info">
+                    <p>最終同期日時</p>
+                    <p class="time" id="last-sync-time">2024/05/12 03:00:05</p>
+                </div>
+                <button class="btn-sync" id="sync-now-btn">今すぐ同期</button>
+            </div>
+
+            <h3>同期履歴</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>実行日時</th>
+                        <th>ステータス</th>
+                        <th>新規求人数</th>
+                        <th>更新求人数</th>
+                        <th>実行者</th>
+                    </tr>
+                </thead>
+                <tbody id="history-list">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Job Sync Mock Logic
+            const syncNowBtn = document.getElementById('sync-now-btn');
+            const historyList = document.getElementById('history-list');
+            const lastSyncTimeEl = document.getElementById('last-sync-time');
+
+            let dummyHistory = [
+                { time: '2024/05/12 03:00:05', status: 'success', new: 5, updated: 12, by: '自動実行' },
+                { time: '2024/05/11 15:30:10', status: 'success', new: 2, updated: 8, by: '運用者A' },
+                { time: '2024/05/11 03:00:02', status: 'fail', new: 0, updated: 0, by: '自動実行' },
+                { time: '2024/05/10 03:00:08', status: 'success', new: 8, updated: 25, by: '自動実行' },
+            ];
+
+            function renderHistory() {
+                historyList.innerHTML = '';
+                dummyHistory.forEach(item => {
+                    const statusClass = item.status === 'success' ? 'status-success' : 'status-fail';
+                    const statusText = item.status === 'success' ? '成功' : '失敗';
+                    const row = `
+                        <tr>
+                            <td>${item.time}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${item.new}件</td>
+                            <td>${item.updated}件</td>
+                            <td>${item.by}</td>
+                        </tr>
+                    `;
+                    historyList.innerHTML += row;
+                });
+            }
+
+            syncNowBtn.addEventListener('click', () => {
+                syncNowBtn.disabled = true;
+                syncNowBtn.textContent = '同期中...';
+
+                setTimeout(() => {
+                    const now = new Date();
+                    const timeString = now.toLocaleString('ja-JP').replace(/\//g, '/');
+                    const isSuccess = Math.random() > 0.2; // 80% success rate
+
+                    const newEntry = {
+                        time: timeString,
+                        status: isSuccess ? 'success' : 'fail',
+                        new: isSuccess ? Math.floor(Math.random() * 5) : 0,
+                        updated: isSuccess ? Math.floor(Math.random() * 15) : 0,
+                        by: '手動実行'
+                    };
+
+                    dummyHistory.unshift(newEntry);
+                    renderHistory();
+
+                    lastSyncTimeEl.textContent = timeString;
+                    syncNowBtn.disabled = false;
+                    syncNowBtn.textContent = '今すぐ同期';
+
+                }, 2000);
+            });
+
+            renderHistory();
+        });
+    </script>
 </body>
 </html>

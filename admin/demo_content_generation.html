@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,95 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .generation-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 32px;
         }
+        .input-form h3 { font-size: 20px; margin-bottom: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 14px; font-weight: 500;
+            color: var(--text-primary); margin-bottom: 8px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px; border: 1px solid #E0E0E0;
+            border-radius: 8px; font-size: 15px; box-sizing: border-box;
+        }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .btn-generate {
+            width: 100%; background: var(--primary-color); color: white;
+            border: none; padding: 14px; border-radius: 8px; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-generate:hover { background-color: var(--primary-dark); }
+        .output-area h3 { font-size: 20px; margin-bottom: 24px; }
+        .generated-content {
+            background-color: var(--accent-warm);
+            border: 1px solid var(--secondary-color);
+            border-radius: 8px; padding: 20px;
+            min-height: 400px;
+            white-space: pre-wrap;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        .loader { text-align: center; padding: 40px; display: none; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--light-gray);
+            border-top-color: var(--primary-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -97,17 +182,114 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>コンテンツ自動生成</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>求人票コンテンツ自動生成</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「コンテンツ自動生成」機能のプロトタイプです。</p>
-            <p>求人情報のテンプレートや既存データを基に、AIが求人票のドラフトを自動生成する画面がここに表示されます。</p>
+            <div class="generation-container">
+                <div class="input-form">
+                    <h3>求人情報の入力</h3>
+                    <div class="form-group">
+                        <label for="job-title">職種名</label>
+                        <input type="text" id="job-title" value="カフェスタッフ">
+                    </div>
+                    <div class="form-group">
+                        <label for="job-keywords">キーワード (3〜5個)</label>
+                        <input type="text" id="job-keywords" value="接客, コーヒー, 駅チカ, 未経験OK, シフト制">
+                    </div>
+                    <div class="form-group">
+                        <label for="job-notes">特記事項・アピールポイント</label>
+                        <textarea id="job-notes">新店舗のオープニングスタッフです。みんなで一緒にお店を作っていきましょう！</textarea>
+                    </div>
+                    <button class="btn-generate" id="generate-btn">AIで求人票を生成</button>
+                </div>
+                <div class="output-area">
+                    <h3>AI生成結果</h3>
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                        <p>AIが求人票を作成中です...</p>
+                    </div>
+                    <div class="generated-content" id="generated-content">
+                        <p style="color: var(--text-secondary); text-align: center; margin-top: 80px;">左のフォームに入力して「生成」ボタンを押してください。</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Content Generation Mock Logic
+            const generateBtn = document.getElementById('generate-btn');
+            const loader = document.getElementById('loader');
+            const generatedContentContainer = document.getElementById('generated-content');
+
+            const jobTitleInput = document.getElementById('job-title');
+            const keywordsInput = document.getElementById('job-keywords');
+            const notesInput = document.getElementById('job-notes');
+
+            generateBtn.addEventListener('click', () => {
+                const title = jobTitleInput.value || "カフェスタッフ";
+                const keywords = keywordsInput.value || "接客, コーヒー";
+                const notes = notesInput.value || "";
+
+                generatedContentContainer.style.display = 'none';
+                loader.style.display = 'block';
+                generateBtn.disabled = true;
+                generateBtn.textContent = '生成中...';
+
+                setTimeout(() => {
+                    const dummyContent = `
+【タイトル】
+オープニングスタッフ募集！人気の${title}として新しいキャリアをスタートしませんか？
+
+【仕事内容】
+お客様に美味しいコーヒーとくつろぎの空間を提供するお仕事です。
+主な業務は、レジ対応、ドリンク作成、簡単な調理、清掃など。
+キーワード： ${keywords}
+
+【アピールポイント】
+${notes ? notes : '未経験者大歓迎！研修制度が充実しているので、初めての方でも安心して働けます。コーヒーの知識も自然と身につきますよ。'}
+シフトは柔軟に対応しますので、学生さんや主婦（夫）の方も働きやすい環境です。
+
+【求める人材】
+・人と話すのが好きな方
+・コーヒーが好きな方
+・新しいことにチャレンジしたい方
+
+ご応募お待ちしております！
+                    `;
+                    generatedContentContainer.textContent = dummyContent.trim();
+
+                    loader.style.display = 'none';
+                    generatedContentContainer.style.display = 'block';
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'AIで求人票を生成';
+                }, 2000);
+            });
+        });
+    </script>
 </body>
 </html>

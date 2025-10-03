@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,13 +64,83 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
-        .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
+        .content-area {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+        .prediction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .prediction-table th, .prediction-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .prediction-table th {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .probability-bar {
+            width: 100%;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .probability-fill {
+            height: 24px;
+            line-height: 24px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 8px 0 0 8px;
         }
     </style>
 </head>
@@ -97,17 +171,85 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>予測分析</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>AIによる充足・承諾予測</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「予測分析」機能のプロトタイプです。</p>
-            <p>過去のデータを基に、求人が充足するまでの期間や、応募者の内定承諾確率などをAIが予測する画面がここに表示されます。</p>
+            <table class="prediction-table">
+                <thead>
+                    <tr>
+                        <th>求人名</th>
+                        <th>応募者数</th>
+                        <th>予測充足期間</th>
+                        <th>トップ候補者の承諾確率</th>
+                    </tr>
+                </thead>
+                <tbody id="prediction-list">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Predictive Analysis Mock Logic
+            const predictionList = document.getElementById('prediction-list');
+            const dummyPredictionData = [
+                { job: 'カフェスタッフ (コメダ珈琲店)', applicants: 12, fillTime: '14日', probability: 85 },
+                { job: 'ホールスタッフ (焼肉の名門 天壇)', applicants: 5, fillTime: '28日', probability: 65 },
+                { job: 'アパレル販売 (Right-on)', applicants: 8, fillTime: '21日', probability: 72 },
+                { job: 'データ入力 (短期)', applicants: 25, fillTime: '10日', probability: 91 },
+                { job: '清掃スタッフ (早朝)', applicants: 3, fillTime: '35日以上', probability: 45 },
+            ];
+
+            function renderPredictions() {
+                predictionList.innerHTML = '';
+                dummyPredictionData.forEach(item => {
+                    const prob = item.probability;
+                    const probColor = prob > 80 ? 'var(--success)' : prob > 60 ? 'var(--accent-color)' : 'var(--error)';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${item.job}</strong></td>
+                        <td>${item.applicants}人</td>
+                        <td>約 <strong>${item.fillTime}</strong></td>
+                        <td>
+                            <div class="probability-bar">
+                                <div class="probability-fill" style="width: ${prob}%; background-color: ${probColor};">
+                                    ${prob}%
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    predictionList.appendChild(row);
+                });
+            }
+
+            renderPredictions();
+        });
+    </script>
 </body>
 </html>

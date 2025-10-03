@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,107 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 20px;
         }
+        .integrations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .integration-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-md);
+        }
+        .integration-card h4 { font-size: 18px; margin: 0; }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .toggle-switch input { display: none; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th, .history-table td {
+            padding: 16px; text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .history-table th { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -97,17 +194,110 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>他媒体連携</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>他媒体への自動投稿</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「他媒体連携」機能のプロトタイプです。</p>
-            <p>Indeedなどの外部求人媒体と連携し、求人情報を自動で投稿する設定や投稿状況を確認する画面がここに表示されます。</p>
+            <h2 class="section-title">連携設定</h2>
+            <div class="integrations-list">
+                <div class="integration-card">
+                    <h4>Indeed</h4>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="integration-card">
+                    <h4>求人ボックス</h4>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="integration-card">
+                    <h4>スタンバイ</h4>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <h2 class="section-title">投稿履歴</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>投稿日時</th>
+                        <th>求人名</th>
+                        <th>投稿先</th>
+                        <th>ステータス</th>
+                    </tr>
+                </thead>
+                <tbody id="posting-history">
+                    <!-- JSで動的に挿入 -->
+                </tbody>
+            </table>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // External Posting Mock Logic
+            const postingHistory = document.getElementById('posting-history');
+            const dummyHistoryData = [
+                { time: '2024/05/12 20:00', job: 'カフェスタッフ', site: 'Indeed', status: '掲載中' },
+                { time: '2024/05/12 20:00', job: 'カフェスタッフ', site: '求人ボックス', status: '掲載中' },
+                { time: '2024/05/11 14:00', job: 'アパレル販売', site: 'Indeed', status: '掲載中' },
+                { time: '2024/05/11 14:00', job: 'アパレル販売', site: '求人ボックス', status: '審査中' },
+                { time: '2024/05/10 10:00', job: 'ホールスタッフ', site: 'Indeed', status: '掲載終了' },
+            ];
+
+            function renderHistory() {
+                postingHistory.innerHTML = '';
+                dummyHistoryData.forEach(item => {
+                    const statusMap = {
+                        '掲載中': { color: 'var(--success)' },
+                        '審査中': { color: 'var(--accent-color)' },
+                        '掲載終了': { color: 'var(--text-secondary)' },
+                    };
+                    const statusStyle = `color: ${statusMap[item.status].color}; font-weight: 600;`;
+
+                    const row = `
+                        <tr>
+                            <td>${item.time}</td>
+                            <td>${item.job}</td>
+                            <td>${item.site}</td>
+                            <td style="${statusStyle}">${item.status}</td>
+                        </tr>
+                    `;
+                    postingHistory.innerHTML += row;
+                });
+            }
+
+            renderHistory();
+        });
+    </script>
 </body>
 </html>

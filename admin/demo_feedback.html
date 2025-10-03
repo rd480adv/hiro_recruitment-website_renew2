@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,13 +64,123 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
-        .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
+        .content-area {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+        .feedback-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .feedback-card {
+            background-color: var(--accent-warm);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            transition: box-shadow 0.2s ease;
+        }
+        .feedback-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+        .feedback-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .feedback-card-header h3 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .feedback-card-header .context {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .feedback-card p {
+            margin: 0 0 16px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .feedback-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .feedback-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--primary-light);
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: var(--white);
+            color: var(--primary-dark);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .feedback-btn:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+        }
+        .feedback-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .feedback-card.responded .feedback-actions {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .thank-you-message {
+            font-weight: 600;
+            color: var(--success);
+            display: none;
+        }
+        .feedback-card.responded .thank-you-message {
+            display: inline;
         }
     </style>
 </head>
@@ -97,17 +211,82 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>フィードバック機能</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>AI提案へのフィードバック</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「フィードバック機能」のプロトタイプです。</p>
-            <p>AIによる検索結果や提案に対して、運用者が評価（Good/Badなど）を送信し、AIの学習データとして活用する画面がここに表示されます。</p>
+            <div class="feedback-list" id="feedback-list">
+                <!-- JSで動的に挿入 -->
+            </div>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Feedback Mock Logic
+            const feedbackList = document.getElementById('feedback-list');
+            const dummyFeedbackData = [
+                { id: 1, type: 'SEO最適化', suggestion: '求人詳細ページのmeta descriptionが長すぎます。120文字以内に要約することを推奨します。', context: '対象ページ: /job/123' },
+                { id: 2, type: '応募者スクリーニング', suggestion: '応募者「鈴木 一郎」さんを「要確認」に分類しました。理由は「学生、勤務時間に制限あり」です。', context: '対象応募者: 鈴木 一郎' },
+                { id: 3, type: 'コンテンツ自動生成', suggestion: '「カフェスタッフ」の求人票に「オープニングスタッフ」というキーワードを追加すると応募率が15%向上する可能性があります。', context: '対象求人: カフェスタッフ' },
+                { id: 4, type: 'データ分析', suggestion: 'モバイルからの離脱率がPCより20%高いです。応募ボタンの視認性改善を検討してください。', context: '対象: 全体' }
+            ];
+
+            function renderFeedbackItems() {
+                feedbackList.innerHTML = '';
+                dummyFeedbackData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'feedback-card';
+                    card.innerHTML = `
+                        <div class="feedback-card-header">
+                            <h3>${item.type}からの提案</h3>
+                            <span class="context">${item.context}</span>
+                        </div>
+                        <p>${item.suggestion}</p>
+                        <div class="feedback-actions">
+                            <button class="feedback-btn" data-feedback="useful">👍 役に立った</button>
+                            <button class="feedback-btn" data-feedback="not-useful">👎 役に立たなかった</button>
+                            <span class="thank-you-message">フィードバックありがとうございます！</span>
+                        </div>
+                    `;
+                    feedbackList.appendChild(card);
+                });
+            }
+
+            feedbackList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('feedback-btn')) {
+                    const card = e.target.closest('.feedback-card');
+                    if (card.classList.contains('responded')) return;
+
+                    card.classList.add('responded');
+                    e.target.classList.add('selected');
+                }
+            });
+
+            renderFeedbackItems();
+        });
+    </script>
 </body>
 </html>

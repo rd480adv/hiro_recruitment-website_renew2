@@ -14,12 +14,16 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: var(--light-gray); margin: 0; display: flex;
+            background-color: var(--light-gray); margin: 0;
         }
         .sidebar {
             width: 260px; background: var(--white); height: 100vh;
             padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; position: fixed;
+            left: 0; top: 0;
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
         .logo {
             font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
@@ -60,14 +64,126 @@
             margin-bottom: 32px;
         }
         .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .overlay.active {
+                display: block;
+            }
+        }
         .content-area {
-            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
-            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
         }
-        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
-        .back-link {
-            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        .upload-container {
+            display: flex;
+            gap: 32px;
         }
+        .upload-box {
+            flex: 1;
+            border: 2px dashed var(--light-gray);
+            border-radius: var(--border-radius-md);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .upload-box:hover { background-color: var(--accent-warm); }
+        .upload-box p { color: var(--text-secondary); }
+        .upload-icon { font-size: 48px; color: var(--primary-color); margin-bottom: 16px; }
+        .parsing-result {
+            flex: 1.5;
+            display: none; /* Initially hidden */
+        }
+        .parsing-result h3 { font-size: 20px; margin-bottom: 24px; }
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 32px;
+        }
+        .result-item label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .result-item input, .result-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: var(--accent-warm);
+        }
+        .result-item textarea { min-height: 100px; resize: vertical; }
+        .full-width { grid-column: 1 / -1; }
+        .loader {
+            text-align: center;
+            padding: 40px;
+            display: none; /* Initially hidden */
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light-gray);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 24px;
+            float: right;
+        }
+        .btn-save:hover { background-color: var(--primary-dark); }
     </style>
 </head>
 <body>
@@ -97,17 +213,123 @@
         <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
     </aside>
 
+    <div class="overlay"></div>
     <main class="main-content">
         <header class="header">
-            <h1>画像解析機能</h1>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+            <button class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>画像解析機能 (履歴書データ化)</h1>
         </header>
 
         <div class="content-area">
-            <h2>機能モックアップ</h2>
-            <p>このページは「画像解析機能」のプロトタイプです。</p>
-            <p>履歴書をアップロードし、内容を自動で読み取ってデータ化する画面がここに表示されます。</p>
+            <div class="upload-container">
+                <div class="upload-box" id="upload-box">
+                    <div class="upload-icon">📄</div>
+                    <h3>履歴書ファイルをアップロード</h3>
+                    <p>ここにファイルをドラッグ＆ドロップ<br>またはクリックしてファイルを選択</p>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*,.pdf">
+                </div>
+
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p>AIが履歴書を解析中です...</p>
+                </div>
+
+                <div class="parsing-result" id="parsing-result">
+                    <h3>解析結果</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <label for="name">氏名</label>
+                            <input type="text" id="name" value="山田 太郎">
+                        </div>
+                        <div class="result-item">
+                            <label for="birthdate">生年月日</label>
+                            <input type="text" id="birthdate" value="1998年4月15日">
+                        </div>
+                        <div class="result-item full-width">
+                            <label for="address">住所</label>
+                            <input type="text" id="address" value="京都市右京区西院西淳和院町">
+                        </div>
+                        <div class="result-item">
+                            <label for="email">メールアドレス</label>
+                            <input type="email" id="email" value="yamada.taro@example.com">
+                        </div>
+                        <div class="result-item">
+                            <label for="phone">電話番号</label>
+                            <input type="tel" id="phone" value="090-1234-5678">
+                        </div>
+                        <div class="result-item full-width">
+                            <label for="summary">学歴・職歴</label>
+                            <textarea id="summary">2021年3月 京都大学 経済学部 卒業
+2021年4月 株式会社ヒロ・スタッフエージェンシー入社
+営業部に配属され、新規顧客開拓に従事。
+2023年、トップセールス賞を受賞。</textarea>
+                        </div>
+                        <div class="result-item full-width">
+                            <label for="skills">資格・スキル</label>
+                            <textarea id="skills">TOEIC 850点
+普通自動車第一種運転免許
+MOS Excel Specialist</textarea>
+                        </div>
+                    </div>
+                    <button class="btn-save">この内容で登録</button>
+                </div>
+            </div>
         </div>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Drawer Menu Logic
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            menuToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Resume Parsing Mock Logic
+            const uploadBox = document.getElementById('upload-box');
+            const fileInput = document.getElementById('file-input');
+            const loader = document.getElementById('loader');
+            const parsingResult = document.getElementById('parsing-result');
+            const saveButton = document.querySelector('.btn-save');
+
+            uploadBox.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (event) => {
+                if (event.target.files && event.target.files[0]) {
+                    uploadBox.style.display = 'none';
+                    loader.style.display = 'block';
+                    parsingResult.style.display = 'none';
+
+                    // Simulate AI parsing delay
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        parsingResult.style.display = 'block';
+                    }, 2500);
+                }
+            });
+
+            saveButton.addEventListener('click', () => {
+                alert('解析結果がシステムに登録されました。（モック）');
+                // Reset UI
+                uploadBox.style.display = 'flex';
+                parsingResult.style.display = 'none';
+                fileInput.value = ''; // Reset file input
+            });
+        });
+    </script>
 </body>
 </html>
