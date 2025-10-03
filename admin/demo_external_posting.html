@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>他媒体連携 - SaiinWork 管理画面</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-light: #FF8A65; --primary-dark: #E64A19;
+            --secondary-color: #FFF3E0; --accent-color: #FF9800; --accent-warm: #FFF8F3;
+            --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF;
+            --light-gray: #F5F5F5; --success: #4CAF50; --error: #F44336; --white: #FFFFFF;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--light-gray); margin: 0; display: flex;
+        }
+        .sidebar {
+            width: 260px; background: var(--white); height: 100vh;
+            padding: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; position: fixed;
+        }
+        .logo {
+            font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 4px;
+            letter-spacing: -0.5px; text-decoration: none; margin-bottom: 32px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 14px; margin-right: 4px;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .nav-category {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; margin: 24px 0 8px 12px;
+        }
+        .nav-item a {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            border-radius: var(--border-radius-md); text-decoration: none;
+            color: var(--text-primary); font-weight: 500; font-size: 15px;
+            transition: all 0.2s ease;
+        }
+        .nav-item a:hover { background-color: var(--accent-warm); color: var(--primary-dark); }
+        .nav-item a.active { background-color: var(--secondary-color); color: var(--primary-dark); font-weight: 600; }
+        .nav-icon { font-size: 20px; }
+        .logout-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            text-decoration: none; color: var(--text-secondary);
+        }
+        .main-content {
+            flex: 1; padding: 40px; margin-left: 260px;
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .content-area {
+            margin-top: 32px; background: var(--white); border-radius: var(--border-radius-lg);
+            padding: 32px; box-shadow: var(--shadow-md); min-height: 400px;
+        }
+        .content-area h2 { font-size: 22px; margin-bottom: 20px; }
+        .back-link {
+            text-decoration: none; color: var(--primary-color); font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="dashboard.html" class="logo">
+            <div class="logo-icon">S</div><span class="logo-text">SaiinWork</span>
+        </a>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-category">AI応募支援機能</li>
+                <li class="nav-item"><a href="demo_applicant_screening.html"><span class="nav-icon">🔍</span>応募者スクリーニング</a></li>
+                <li class="nav-item"><a href="demo_resume_parsing.html"><span class="nav-icon">📄</span>画像解析機能</a></li>
+
+                <li class="nav-category">AI運用支援機能</li>
+                <li class="nav-item"><a href="demo_seo_optimization.html"><span class="nav-icon">📈</span>SEO最適化</a></li>
+                <li class="nav-item"><a href="demo_content_generation.html"><span class="nav-icon">✍️</span>コンテンツ自動生成</a></li>
+                <li class="nav-item"><a href="demo_data_analysis.html"><span class="nav-icon">📊</span>データ分析</a></li>
+                <li class="nav-item"><a href="demo_feedback.html"><span class="nav-icon">👍</span>フィードバック機能</a></li>
+                <li class="nav-item"><a href="demo_predictive_analysis.html"><span class="nav-icon">🔮</span>予測分析</a></li>
+
+                <li class="nav-category">連携機能</li>
+                <li class="nav-item"><a href="demo_job_sync.html"><span class="nav-icon">🔄</span>求人情報同期</a></li>
+                <li class="nav-item"><a href="demo_sns_integration.html"><span class="nav-icon">📱</span>SNS連携</a></li>
+                <li class="nav-item"><a href="demo_external_posting.html" class="active"><span class="nav-icon">📤</span>他媒体連携</a></li>
+            </ul>
+        </nav>
+        <a href="index.html" class="logout-link"><span class="nav-icon">🚪</span>ログアウト</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>他媒体連携</h1>
+            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+        </header>
+
+        <div class="content-area">
+            <h2>機能モックアップ</h2>
+            <p>このページは「他媒体連携」機能のプロトタイプです。</p>
+            <p>Indeedなどの外部求人媒体と連携し、求人情報を自動で投稿する設定や投稿状況を確認する画面がここに表示されます。</p>
+        </div>
+    </main>
+</body>
+</html>
