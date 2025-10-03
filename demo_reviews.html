@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>評価・口コミ - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-dark: #E64A19; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --accent-warm: #FFF8F3; --accent-color: #FF9800;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; position: absolute; left: 0; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .main-content { padding: 24px 0; }
+        .card { background: var(--white); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: var(--shadow-md); margin-bottom: 16px; }
+        .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .page-subtitle { font-size: 14px; color: var(--text-secondary); }
+        .rating-summary { display: flex; align-items: center; gap: 24px; margin-top: 16px; }
+        .rating-score { font-size: 48px; font-weight: 700; color: var(--primary-color); }
+        .rating-details { flex: 1; }
+        .rating-stars { font-size: 24px; color: var(--accent-color); }
+        .rating-count { font-size: 14px; color: var(--text-secondary); }
+        .review-list { display: flex; flex-direction: column; gap: 16px; }
+        .review-item { padding-bottom: 16px; border-bottom: 1px solid var(--light-gray); }
+        .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .reviewer-info { font-size: 14px; font-weight: 500; }
+        .review-date { font-size: 12px; color: var(--text-secondary); }
+        .review-stars { font-size: 16px; color: var(--accent-color); }
+        .review-text { font-size: 14px; line-height: 1.6; }
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: var(--border-radius-md); font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; display: block; width: 100%; margin-top: 16px; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="demo_job_detail.html" class="back-btn" onclick="history.back(); return false;">←</a>
+                <h1 class="header-title">評価・口コミ</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="card fade-in">
+                <h2 class="page-title">コメダ珈琲店 西院店</h2>
+                <p class="page-subtitle">の評価</p>
+                <div class="rating-summary">
+                    <div class="rating-score">4.8</div>
+                    <div class="rating-details">
+                        <div class="rating-stars">★★★★☆</div>
+                        <div class="rating-count">23件のレビューに基づく</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <div class="review-list">
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="reviewer-info">20代女性 / カフェ経験者</span>
+                            <span class="review-date">1週間前</span>
+                        </div>
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-text">スタッフの皆さんがとても親切で、初日から安心して働けました！コーヒーの知識も教えてもらえて勉強になります。</p>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="reviewer-info">30代男性 / 未経験</span>
+                            <span class="review-date">2週間前</span>
+                        </div>
+                        <div class="review-stars">★★★★☆</div>
+                        <p class="review-text">お客様も地元の方が多く、アットホームな雰囲気です。まかないのサンドイッチも美味しかったです！忙しい時間帯は大変ですが、やりがいはあります。</p>
+                    </div>
+                     <div class="review-item">
+                        <div class="review-header">
+                            <span class="reviewer-info">20代女性 / 学生</span>
+                            <span class="review-date">3週間前</span>
+                        </div>
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-text">研修がしっかりしているので、カフェ未経験でも安心でした。駅から近いのも嬉しいポイントです。シフトの融通も利くので学業と両立しやすいです。</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="showNotification('口コミ投稿ページへ遷移します（モック）')">この職場の口コミを投稿する</button>
+        </div>
+    </main>
+    <script>
+        function showNotification(message) {
+            const el = document.createElement('div');
+            el.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--primary-color); color: white; padding: 12px 20px; border-radius: 25px; font-size: 14px; z-index: 1001;`;
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

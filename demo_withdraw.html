@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退会手続き - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-dark: #E64A19; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --error: #F44336; --success: #4CAF50;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); display: flex; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; position: absolute; left: 0; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .main-content { padding: 24px 0; flex: 1; display: flex; align-items: center; }
+        .card { background: var(--white); border-radius: var(--border-radius-lg); padding: 32px 24px; box-shadow: var(--shadow-md); width: 100%; text-align: center; }
+        .card h2 { font-size: 20px; color: var(--error); margin-bottom: 16px; }
+        .card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+        .btn-danger { background: var(--error); color: white; border: none; padding: 16px; border-radius: var(--border-radius-md); font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block; width: 100%; }
+        .btn-danger:hover { background: #d32f2f; }
+        .btn-danger:disabled { background: var(--light-gray); color: var(--text-secondary); cursor: not-allowed; }
+        .checkbox-group { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; margin-bottom: 24px; }
+        .checkbox { width: 20px; height: 20px; }
+        .checkbox-label { font-size: 14px; color: var(--text-primary); }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="demo_profile.html" class="back-btn" onclick="history.back(); return false;">←</a>
+                <h1 class="header-title">退会手続き</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="card fade-in">
+                <h2>本当に退会しますか？</h2>
+                <p>
+                    退会手続きを完了すると、あなたのプロフィール情報、応募履歴、保存した検索条件など、すべてのデータが完全に削除されます。<br>
+                    <strong>この操作は取り消せません。</strong>
+                </p>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="confirm" class="checkbox">
+                    <label for="confirm" class="checkbox-label">注意事項を理解し、退会に同意します</label>
+                </div>
+                <button id="withdrawBtn" class="btn-danger" disabled>退会する</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const confirmCheckbox = document.getElementById('confirm');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+
+        confirmCheckbox.addEventListener('change', function() {
+            withdrawBtn.disabled = !this.checked;
+        });
+
+        withdrawBtn.addEventListener('click', function() {
+            if (confirm('本当によろしいですか？この操作は元に戻せません。')) {
+                showNotification('退会処理が完了しました。ご利用ありがとうございました。');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+
+        function showNotification(message) {
+            const oldNotification = document.querySelector('.notification');
+            if (oldNotification) { oldNotification.remove(); }
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: var(--text-primary);
+                color: white; padding: 12px 20px; border-radius: 25px;
+                font-size: 14px; font-weight: 500; z-index: 1001;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: slideDown 0.3s ease;
+                text-align: center;
+            `;
+            notification.textContent = message;
+            if (!document.querySelector('#notification-style')) {
+                const style = document.createElement('style');
+                style.id = 'notification-style';
+                style.textContent = `@keyframes slideDown { from { transform: translateX(-50%) translateY(-50px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`;
+                document.head.appendChild(style);
+            }
+            document.body.appendChild(notification);
+            setTimeout(() => { notification.remove(); }, 3000);
+        }
+    </script>
+</body>
+</html>

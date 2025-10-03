@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>検索結果 - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-light: #FF8A65; --primary-dark: #E64A19; --secondary-color: #FFF3E0; --secondary-light: #FFCCBC; --accent-color: #FF9800; --accent-warm: #FFF8F3; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --error: #F44336; --success: #4CAF50;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        @media (min-width: 1024px) { .container { max-width: 1200px; padding: 0 32px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; gap: 16px; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .main-content { padding: 24px 0; }
+        .search-summary { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .search-query { font-size: 20px; font-weight: 700; color: var(--primary-color); }
+        .search-query span { font-weight: 400; color: var(--text-primary); font-size: 16px; }
+        .result-count { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+        .sort-options { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+        .sort-select { border: 2px solid var(--light-gray); border-radius: 12px; padding: 8px 12px; font-size: 14px; }
+        .jobs-grid { display: grid; gap: 20px; }
+        .job-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: all 0.3s ease; position: relative; border: 1px solid transparent; text-decoration: none; color: inherit; display: block; }
+        .job-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); border-color: var(--primary-color); }
+        .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .job-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .job-company { font-size: 14px; color: var(--text-secondary); }
+        .job-wage { font-size: 24px; font-weight: 700; color: var(--primary-color); }
+        .job-details { display: flex; gap: 16px; margin-bottom: 20px; font-size: 14px; color: var(--text-secondary); flex-wrap: wrap; }
+        .job-detail { display: flex; align-items: center; gap: 4px; }
+        .job-actions { display: flex; gap: 12px; margin-top: 20px; }
+        .btn-primary { flex: 2; background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: inline-block; }
+        .btn-secondary { flex: 1; padding: 16px; background: var(--white); color: var(--primary-color); border: 2px solid var(--primary-color); border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: inline-block; }
+        .no-results { text-align: center; padding: 40px; background: var(--white); border-radius: 16px; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (min-width: 768px) { .jobs-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="back-btn" onclick="history.back(); return false;">←</a>
+                <h1 class="header-title">検索結果</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="search-summary fade-in">
+                <h2 class="search-query"><span>検索条件:</span> "カフェ"</h2>
+                <p class="result-count">3件の求人が見つかりました</p>
+            </section>
+
+            <div class="sort-options">
+                <select class="sort-select">
+                    <option>新着順</option>
+                    <option>時給の高い順</option>
+                    <option>勤務地が近い順</option>
+                </select>
+            </div>
+
+            <div class="jobs-grid">
+                <div class="job-card fade-in">
+                    <a href="demo_job_detail.html" style="text-decoration: none; color: inherit;">
+                        <div class="job-header">
+                            <div>
+                                <h3 class="job-title">カフェスタッフ</h3>
+                                <p class="job-company">コメダ珈琲店 西院店</p>
+                            </div>
+                            <div class="job-wage">¥1,100</div>
+                        </div>
+                        <div class="job-details">
+                            <span class="job-detail">📍 徒歩2分</span>
+                            <span class="job-detail">🕐 14:00-18:00</span>
+                        </div>
+                    </a>
+                    <div class="job-actions">
+                        <a href="demo_application_flow.html" class="btn-primary">応募する</a>
+                        <a href="demo_job_detail.html" class="btn-secondary">詳細</a>
+                    </div>
+                </div>
+
+                <div class="job-card fade-in">
+                     <a href="demo_job_detail.html" style="text-decoration: none; color: inherit;">
+                        <div class="job-header">
+                            <div>
+                                <h3 class="job-title">バリスタ (見習い)</h3>
+                                <p class="job-company">スターバックスコーヒー 西院駅前店</p>
+                            </div>
+                            <div class="job-wage">¥1,080</div>
+                        </div>
+                        <div class="job-details">
+                            <span class="job-detail">📍 徒歩1分</span>
+                            <span class="job-detail">🕐 7:00-12:00</span>
+                        </div>
+                    </a>
+                    <div class="job-actions">
+                        <a href="demo_application_flow.html" class="btn-primary">応募する</a>
+                        <a href="demo_job_detail.html" class="btn-secondary">詳細</a>
+                    </div>
+                </div>
+
+                <div class="job-card fade-in">
+                    <a href="demo_job_detail.html" style="text-decoration: none; color: inherit;">
+                        <div class="job-header">
+                            <div>
+                                <h3 class="job-title">古民家カフェのホール</h3>
+                                <p class="job-company">喫茶 檸檬</p>
+                            </div>
+                            <div class="job-wage">¥1,150</div>
+                        </div>
+                        <div class="job-details">
+                            <span class="job-detail">📍 徒歩6分</span>
+                            <span class="job-detail">🕐 11:00-17:00</span>
+                        </div>
+                    </a>
+                    <div class="job-actions">
+                        <a href="demo_application_flow.html" class="btn-primary">応募する</a>
+                        <a href="demo_job_detail.html" class="btn-secondary">詳細</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 0件の場合の表示例 -->
+            <!--
+            <div class="no-results fade-in">
+                <h3>検索条件に一致する求人は見つかりませんでした。</h3>
+                <p style="margin-top: 8px; color: var(--text-secondary);">条件を変更して再度お試しください。</p>
+            </div>
+            -->
+        </div>
+    </main>
+</body>
+</html>

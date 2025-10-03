@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選考状況 - SaiinWork</title>
+    <style>
+        :root {
+            --primary-color: #FF6B35; --primary-dark: #E64A19; --text-primary: #2C2C2C; --text-secondary: #666666; --background: #FFFFFF; --light-gray: #F5F5F5; --white: #FFFFFF; --success: #4CAF50;
+            --border-radius-md: 12px; --border-radius-lg: 16px; --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; line-height: 1.5; color: var(--text-primary); background-color: var(--light-gray); }
+        .container { max-width: 390px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 768px) { .container { max-width: 800px; padding: 0 24px; } }
+        .header { background: var(--white); border-bottom: 1px solid var(--light-gray); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .back-btn { background: none; border: none; color: var(--primary-color); font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; position: absolute; left: 0; }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .main-content { padding: 24px 0; }
+        .card { background: var(--white); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: var(--shadow-md); margin-bottom: 16px; }
+        .job-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .job-company { font-size: 14px; color: var(--text-secondary); }
+        .timeline { list-style: none; padding-left: 20px; }
+        .timeline-item { position: relative; padding-bottom: 24px; padding-left: 24px; border-left: 2px solid var(--light-gray); }
+        .timeline-item:last-child { border-left: none; }
+        .timeline-item::before { content: ''; position: absolute; left: -9px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--light-gray); }
+        .timeline-item.completed::before { background: var(--success); border: 2px solid white; box-shadow: 0 0 0 2px var(--success); }
+        .timeline-item.active::before { background: var(--primary-color); border: 2px solid white; box-shadow: 0 0 0 2px var(--primary-color); }
+        .timeline-item.completed { border-left-color: var(--success); }
+        .timeline-date { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .timeline-title { font-size: 16px; font-weight: 600; }
+        .timeline-body { font-size: 14px; color: var(--text-secondary); margin-top: 8px; }
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: var(--border-radius-md); font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; display: block; width: 100%; margin-top: 16px; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="demo_application_history.html" class="back-btn" onclick="history.back(); return false;">←</a>
+                <h1 class="header-title">選考状況</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="card fade-in">
+                <h2 class="job-title">軽作業スタッフ</h2>
+                <p class="job-company">佐川急便 西院営業所</p>
+            </div>
+
+            <div class="card fade-in">
+                <ul class="timeline">
+                    <li class="timeline-item completed">
+                        <div class="timeline-date">2025/08/02 15:30</div>
+                        <h3 class="timeline-title">応募完了</h3>
+                        <div class="timeline-body">応募を受け付けました。企業からの連絡をお待ちください。</div>
+                    </li>
+                    <li class="timeline-item active">
+                        <div class="timeline-date">2025/08/03 11:00</div>
+                        <h3 class="timeline-title">書類選考中</h3>
+                        <div class="timeline-body">企業があなたのプロフィールを確認しています。通常3営業日以内に結果をご連絡します。</div>
+                    </li>
+                    <li class="timeline-item">
+                        <div class="timeline-date"></div>
+                        <h3 class="timeline-title">面接</h3>
+                        <div class="timeline-body">書類選考に通過すると、面接日程の調整に進みます。</div>
+                    </li>
+                    <li class="timeline-item">
+                        <div class="timeline-date"></div>
+                        <h3 class="timeline-title">結果通知</h3>
+                        <div class="timeline-body">最終的な選考結果をご連絡します。</div>
+                    </li>
+                </ul>
+            </div>
+
+            <a href="demo_messages.html" class="btn-primary fade-in">企業にメッセージを送る</a>
+        </div>
+    </main>
+</body>
+</html>
